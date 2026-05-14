@@ -73,6 +73,7 @@
       box-shadow: 0 10px 22px rgba(15, 23, 42, .06);
       display: flex;
       flex-direction: column;
+      height: 100%;
     }
     .imgbox {
       background: #E5E7EB;
@@ -84,11 +85,37 @@
     }
     .imgbox img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .noimg { color: var(--muted); font-size: 13px; padding: 20px; text-align: center; }
-    .content { padding: 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .content {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      min-height: 230px;
+    }
     .category { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
-    .title { font-weight: 800; font-size: 16px; line-height: 1.25; }
+    .title {
+      font-weight: 800;
+      font-size: 16px;
+      line-height: 1.25;
+      min-height: 40px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
     .variant { color: var(--muted); font-size: 14px; }
-    .desc { font-size: 13px; color: #334155; line-height: 1.35; min-height: 35px; }
+    .desc {
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.35;
+      min-height: 38px;
+      max-height: 38px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
     .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .price { font-weight: 900; font-size: 19px; color: var(--theme); }
     .badge {
@@ -102,6 +129,16 @@
     }
     .badge.low { background: #FFFBEB; color: var(--warn); }
     .badge.sold { background: #FEF2F2; color: var(--danger); }
+    .product-actions {
+      margin-top: auto;
+      display: grid;
+      gap: 10px;
+      padding-top: 8px;
+    }
+    .price-row {
+      min-height: 32px;
+    }
+
     .btn {
       cursor: pointer;
       border: none;
@@ -227,6 +264,7 @@
       .grid { grid-template-columns: 1fr; }
       .cart-inner { grid-template-columns: 1fr; }
       .cart-inner button { width: 100%; }
+      .content { min-height: 220px; }
       .flavor-row {
         grid-template-columns: 54px 1fr;
       }
@@ -333,7 +371,7 @@
       catalog = data || catalog;
       catalog.products = (catalog.products || []).map((p, index) => {
         if (!p.id) p.id = 'AUTO_' + (index + 1);
-        if (!p.flavor && p.variant) p.flavor = p.variant;
+        p.flavor = p.flavor || p.variant || p.Variant || p.Flavor || p['Flavor'] || p['Variant'] || '';
         return p;
       });
 
@@ -439,13 +477,15 @@
           <div class="category">${escapeHtml(group.category || '')}</div>
           <div class="title">${escapeHtml(title)}</div>
           <div class="desc">${escapeHtml(group.description || '')}</div>
-          <div class="row">
-            <div class="price">${price}</div>
-            <div class="badge">${flavorText}</div>
+          <div class="product-actions">
+            <div class="row price-row">
+              <div class="price">${price}</div>
+              <div class="badge">${flavorText}</div>
+            </div>
+            <button class="btn" onclick="openFlavorModal('${escapeJs(group.key)}')" ${availableFlavors.length ? '' : 'disabled'}>
+              View Flavors
+            </button>
           </div>
-          <button class="btn" onclick="openFlavorModal('${escapeJs(group.key)}')" ${availableFlavors.length ? '' : 'disabled'}>
-            View Flavors
-          </button>
         </div>`;
 
       return card;
@@ -484,7 +524,7 @@
                 <div class="flavor-row">
                   ${img}
                   <div>
-                    <div class="flavor-name">${escapeHtml(f.flavor || 'Default')}</div>
+                    <div class="flavor-name">${escapeHtml(getFlavorName(f))}</div>
                     <div class="flavor-meta">${formatMoney(f.retailPrice, currency)} · <span class="badge ${badgeClass}">${escapeHtml(f.stockStatus || 'Available')}</span></div>
                   </div>
                   <input class="flavor-qty" id="modalqty-${escapeAttr(f.id)}" type="number" min="${Number(f.moq || 1)}" value="${Number(f.moq || 1)}" ${soldOut ? 'disabled' : ''} />
@@ -629,7 +669,8 @@
         if (!p) return;
 
         const productName = [p.brand, p.productName].filter(Boolean).join(' ');
-        const flavor = p.flavor ? `Flavor: ${p.flavor}` : '';
+        const flavorName = getFlavorName(p);
+        const flavor = flavorName && flavorName !== 'Default' ? `Flavor: ${flavorName}` : '';
         const lineTotal = Number(p.retailPrice || 0) * Number(item.qty || 0);
         total += lineTotal;
 
@@ -651,6 +692,10 @@
       const url = `https://wa.me/${phone}?text=${encodeURIComponent(lines.join('\n'))}`;
       window.open(url, '_blank');
       closeCheckoutModal();
+    }
+
+    function getFlavorName(product) {
+      return product.flavor || product.variant || product.Variant || product.Flavor || product['Flavor'] || product['Variant'] || 'Default';
     }
 
     function formatMoney(value, currency) {
