@@ -189,12 +189,6 @@
     let catalog = { settings: {}, categories: [], products: [] };
     let cart = [];
 
-    /************************************************************
-     * STATIC HOSTING SETUP
-     * Paste your deployed Apps Script Web App URL below.
-     * Example:
-     * const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbxxxx/exec';
-     ************************************************************/
     const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbz06ws3xbav4UtpnY2WLmyH3oDKQZxjLITalLXaivQacgD4_XqzalVZRI6esWjFdUxQ/exec';
 
     document.addEventListener('DOMContentLoaded', init);
@@ -205,17 +199,38 @@
       loadCatalogFromApi();
     }
 
-    function loadCatalogFromApi() {
+    async function loadCatalogFromApi() {
       if (!CATALOG_API_URL || CATALOG_API_URL.includes('PASTE_YOUR')) {
         showError({ message: 'Catalog API URL is missing or invalid. Contact the catalog owner.' });
         return;
       }
 
+      document.getElementById('stats').textContent = 'Loading catalog...';
+
+      // First try normal JSON. This works on GitHub Pages if Apps Script allows the response.
+      try {
+        const url = CATALOG_API_URL + (CATALOG_API_URL.includes('?') ? '&' : '?') + 'v=' + Date.now();
+        const res = await fetch(url, { method: 'GET', cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        loadCatalog(data);
+        return;
+      } catch (fetchError) {
+        console.warn('Normal JSON load failed. Trying JSONP fallback.', fetchError);
+      }
+
+      // Fallback to JSONP. This requires Code.gs to support ?callback=name
+      loadCatalogViaJsonp();
+    }
+
+    function loadCatalogViaJsonp() {
       const callbackName = 'catalogCallback_' + Date.now();
       const script = document.createElement('script');
       const separator = CATALOG_API_URL.includes('?') ? '&' : '?';
+      let completed = false;
 
       window[callbackName] = function(response) {
+        completed = true;
         try {
           delete window[callbackName];
           script.remove();
@@ -230,34 +245,73 @@
       };
 
       script.onerror = function() {
+        if (completed) return;
         try { delete window[callbackName]; } catch (e) {}
-        showError({ message: 'Could not connect to the catalog API. Check the Apps Script deployment URL and access settings.' });
+        showError({ message: 'Could not connect to the catalog API. Check Apps Script deployment, public access, and the Web App /exec URL.' });
       };
 
-      script.src = CATALOG_API_URL + separator + 'action=catalog&callback=' + encodeURIComponent(callbackName) + '&v=' + Date.now();
+      script.src = CATALOG_API_URL + separator + 'callback=' + encodeURIComponent(callbackName) + '&v=' + Date.now();
       document.body.appendChild(script);
+
+      setTimeout(function() {
+        if (!completed) {
+          try { script.remove(); delete window[callbackName]; } catch (e) {}
+          showError({ message: 'Catalog API did not respond. Test the Apps Script URL with ?callback=test. It must return test({...}); not the catalog page.' });
+        }
+      }, 12000);
     }
 
     function loadCatalog(data) {
-      catalog = data || catalog;
+      catalog = normalizeCatalog(data || catalog);
       applySettings(catalog.settings || {});
       populateCategories(catalog.categories || []);
       renderProducts();
       updateCartBar();
     }
 
+    function normalizeCatalog(data) {
+      const clean = data || {};
+      clean.settings = clean.settings || {};
+      clean.products = Array.isArray(clean.products) ? clean.products : [];
+      clean.products = clean.products.map((p, index) => {
+        const product = Object.assign({}, p);
+        if (!product.id) {
+          product.id = makeProductId(product, index);
+        }
+        return product;
+      });
+
+      if (!Array.isArray(clean.categories) || !clean.categories.length) {
+        clean.categories = [...new Set(clean.products.map(p => p.category).filter(Boolean))];
+      }
+
+      return clean;
+    }
+
+    function makeProductId(p, index) {
+      const base = [p.category, p.brand, p.productName, p.variant, p.description, index]
+        .join('-')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      return base || ('product-' + index);
+    }
+
     function applySettings(settings) {
-      document.documentElement.style.setProperty('--theme', settings.themeColor || '#111827');
-      document.documentElement.style.setProperty('--accent', settings.accentColor || '#F59E0B');
-      document.title = settings.storeName || 'Retail Catalog';
-      document.getElementById('catalogTitle').textContent = settings.catalogTitle || settings.storeName || 'Product Catalog';
-      document.getElementById('welcomeText').textContent = settings.welcomeText || '';
-      document.getElementById('footerText').textContent = settings.footerText || '';
+      document.documentElement.style.setProperty('--theme', settings.themeColor || settings['Theme Color'] || '#111827');
+      document.documentElement.style.setProperty('--accent', settings.accentColor || settings['Accent Color'] || '#F59E0B');
+      document.title = settings.storeName || settings['Store Name'] || 'Retail Catalog';
+      document.getElementById('catalogTitle').textContent = settings.catalogTitle || settings['Catalog Title'] || settings.storeName || settings['Store Name'] || 'Product Catalog';
+      document.getElementById('welcomeText').textContent = settings.welcomeText || settings['Welcome Text'] || '';
+      document.getElementById('footerText').textContent = settings.footerText || settings['Footer Text'] || '';
 
       const logo = document.getElementById('logo');
-      if (settings.logoUrl) {
-        logo.src = settings.logoUrl;
+      const logoUrl = settings.logoUrl || settings['Logo URL'] || '';
+      if (logoUrl) {
+        logo.src = logoUrl;
         logo.style.display = 'block';
+      } else {
+        logo.style.display = 'none';
       }
     }
 
@@ -277,7 +331,7 @@
       const empty = document.getElementById('emptyState');
       const search = document.getElementById('search').value.trim().toLowerCase();
       const category = document.getElementById('categoryFilter').value;
-      const currency = catalog.settings.currency || 'SRD';
+      const currency = catalog.settings.currency || catalog.settings.Currency || 'SRD';
 
       const products = (catalog.products || []).filter(p => {
         const haystack = [p.category, p.brand, p.productName, p.variant, p.description].join(' ').toLowerCase();
@@ -287,6 +341,7 @@
       document.getElementById('stats').textContent = `${products.length} product${products.length === 1 ? '' : 's'} shown`;
       grid.innerHTML = '';
       empty.style.display = products.length ? 'none' : 'block';
+      empty.textContent = 'No products found.';
 
       products.forEach(p => grid.appendChild(productCard(p, currency)));
     }
@@ -299,6 +354,7 @@
       const badgeClass = soldOut ? 'sold' : (lowStock ? 'low' : '');
       const title = [p.brand, p.productName].filter(Boolean).join(' ');
       const price = formatMoney(p.retailPrice, currency);
+      const safeId = escapeAttr(p.id);
       const img = p.imageUrl
         ? `<img src="${escapeAttr(p.imageUrl)}" alt="${escapeAttr(title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;noimg&quot;>Image unavailable</div>'" />`
         : '<div class="noimg">No image</div>';
@@ -315,19 +371,19 @@
             <div class="badge ${badgeClass}">${escapeHtml(p.stockStatus || 'Available')}</div>
           </div>
           <div class="qty-row">
-            <input type="number" min="${Number(p.moq || 1)}" value="${Number(p.moq || 1)}" id="qty-${p.id}" ${soldOut ? 'disabled' : ''} />
-            <button class="btn" onclick="addToCart('${p.id}')" ${soldOut ? 'disabled' : ''}>Add</button>
+            <input type="number" min="${Number(p.moq || 1)}" value="${Number(p.moq || 1)}" id="qty-${safeId}" ${soldOut ? 'disabled' : ''} />
+            <button class="btn" onclick="addToCart('${safeId}')" ${soldOut ? 'disabled' : ''}>Add</button>
           </div>
         </div>`;
       return card;
     }
 
     function addToCart(id) {
-      const product = catalog.products.find(p => p.id === id);
+      const product = catalog.products.find(p => String(p.id) === String(id));
       if (!product) return;
       const qtyInput = document.getElementById('qty-' + id);
       const qty = Math.max(Number(product.moq || 1), Number(qtyInput.value || product.moq || 1));
-      const existing = cart.find(item => item.id === id);
+      const existing = cart.find(item => String(item.id) === String(id));
       if (existing) existing.qty += qty;
       else cart.push({ id, qty });
       updateCartBar();
@@ -345,7 +401,7 @@
 
     function sendWhatsAppOrder() {
       const settings = catalog.settings || {};
-      const phone = settings.whatsappNumber;
+      const phone = settings.whatsappNumber || settings['WhatsApp Number'];
       if (!phone) {
         alert('WhatsApp number is missing in Settings sheet.');
         return;
@@ -355,14 +411,15 @@
         return;
       }
 
-      const currency = settings.currency || 'SRD';
+      const currency = settings.currency || settings.Currency || 'SRD';
+      const storeName = settings.storeName || settings['Store Name'] || '';
       const lines = [];
-      lines.push(`Hi ${settings.storeName || ''}, I would like to order:`.trim());
+      lines.push(`Hi ${storeName}, I would like to order:`.trim());
       lines.push('');
 
       let total = 0;
       cart.forEach((item, index) => {
-        const p = catalog.products.find(product => product.id === item.id);
+        const p = catalog.products.find(product => String(product.id) === String(item.id));
         if (!p) return;
         const name = [p.brand, p.productName, p.variant].filter(Boolean).join(' - ');
         const lineTotal = Number(p.retailPrice || 0) * Number(item.qty || 0);
@@ -379,7 +436,8 @@
       lines.push('Name:');
       lines.push('Delivery/Pickup:');
 
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(lines.join('\n'))}`;
+      const cleanPhone = String(phone).replace(/\D/g, '');
+      const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(lines.join('\n'))}`;
       window.open(url, '_blank');
     }
 
