@@ -18,71 +18,21 @@
       --warn: #B45309;
     }
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-    header {
-      background: linear-gradient(135deg, var(--theme), #020617);
-      color: white;
-      padding: 22px 16px 28px;
-      border-bottom: 4px solid var(--accent);
-    }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); }
+    header { background: linear-gradient(135deg, var(--theme), #020617); color: white; padding: 22px 16px 28px; border-bottom: 4px solid var(--accent); }
     .wrap { max-width: 1100px; margin: 0 auto; }
     .brand-row { display: flex; gap: 12px; align-items: center; }
-    .logo {
-      width: 52px; height: 52px; border-radius: 14px;
-      object-fit: cover; background: rgba(255,255,255,.12);
-      display: none;
-    }
+    .logo { width: 52px; height: 52px; border-radius: 14px; object-fit: cover; background: rgba(255,255,255,.12); display: none; }
     h1 { margin: 0; font-size: 26px; line-height: 1.15; }
     .subtitle { margin: 8px 0 0; color: #CBD5E1; font-size: 14px; line-height: 1.45; }
-    .toolbar {
-      background: white;
-      border-bottom: 1px solid var(--line);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      padding: 12px 16px;
-    }
-    .toolbar-grid {
-      max-width: 1100px; margin: 0 auto;
-      display: grid; grid-template-columns: 1fr 220px; gap: 10px;
-    }
-    input, select, button {
-      font: inherit;
-      border-radius: 12px;
-      border: 1px solid var(--line);
-      padding: 12px;
-      background: white;
-    }
-    input:focus, select:focus { outline: 2px solid color-mix(in srgb, var(--accent), transparent 65%); }
+    .toolbar { background: white; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; padding: 12px 16px; }
+    .toolbar-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 220px; gap: 10px; }
+    input, select, button { font: inherit; border-radius: 12px; border: 1px solid var(--line); padding: 12px; background: white; }
     main { padding: 18px 16px 120px; }
     .stats { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 10px 22px rgba(15, 23, 42, .06);
-      display: flex;
-      flex-direction: column;
-    }
-    .imgbox {
-      background: #E5E7EB;
-      aspect-ratio: 1 / 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; overflow: hidden; box-shadow: 0 10px 22px rgba(15, 23, 42, .06); display: flex; flex-direction: column; }
+    .imgbox { background: #E5E7EB; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .imgbox img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .noimg { color: var(--muted); font-size: 13px; padding: 20px; text-align: center; }
     .content { padding: 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
@@ -92,54 +42,22 @@
     .desc { font-size: 13px; color: #334155; line-height: 1.35; min-height: 35px; }
     .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .price { font-weight: 900; font-size: 19px; color: var(--theme); }
-    .badge {
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 999px;
-      padding: 6px 9px;
-      background: #ECFDF5;
-      color: var(--ok);
-      white-space: nowrap;
-    }
+    .badge { font-size: 12px; font-weight: 700; border-radius: 999px; padding: 6px 9px; background: #ECFDF5; color: var(--ok); white-space: nowrap; }
     .badge.low { background: #FFFBEB; color: var(--warn); }
     .badge.sold { background: #FEF2F2; color: var(--danger); }
     .qty-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
     .qty-row input { width: 100%; text-align: center; }
-    .btn {
-      cursor: pointer;
-      border: none;
-      background: var(--theme);
-      color: white;
-      font-weight: 800;
-      transition: transform .05s ease, opacity .2s ease;
-    }
-    .btn:active { transform: translateY(1px); }
+    .btn { cursor: pointer; border: none; background: var(--theme); color: white; font-weight: 800; }
     .btn[disabled] { opacity: .45; cursor: not-allowed; }
-    .cartbar {
-      position: fixed;
-      left: 0; right: 0; bottom: 0;
-      background: white;
-      border-top: 1px solid var(--line);
-      padding: 12px 16px;
-      z-index: 30;
-      box-shadow: 0 -10px 30px rgba(15,23,42,.10);
-    }
-    .cart-inner {
-      max-width: 1100px; margin: 0 auto;
-      display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center;
-    }
+    .cartbar { position: fixed; left: 0; right: 0; bottom: 0; background: white; border-top: 1px solid var(--line); padding: 12px 16px; z-index: 30; box-shadow: 0 -10px 30px rgba(15,23,42,.10); }
+    .cart-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; }
     .cart-info { font-size: 14px; color: var(--muted); }
     .cart-info strong { color: var(--text); }
     .whatsapp { background: #16A34A; color: white; border: none; font-weight: 900; cursor: pointer; }
     .clear { background: #F1F5F9; color: #334155; border: 1px solid var(--line); cursor: pointer; }
-    .empty {
-      text-align: center; color: var(--muted); padding: 50px 16px;
-      background: white; border-radius: 18px; border: 1px solid var(--line);
-    }
+    .empty { text-align: center; color: var(--muted); padding: 50px 16px; background: white; border-radius: 18px; border: 1px solid var(--line); }
     footer { color: var(--muted); font-size: 12px; text-align: center; padding: 24px 16px; }
-    @media (max-width: 850px) {
-      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
+    @media (max-width: 850px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 560px) {
       h1 { font-size: 22px; }
       .toolbar-grid { grid-template-columns: 1fr; }
@@ -163,9 +81,7 @@
   <section class="toolbar">
     <div class="toolbar-grid">
       <input id="search" type="search" placeholder="Search product, brand, flavor..." />
-      <select id="categoryFilter">
-        <option value="">All categories</option>
-      </select>
+      <select id="categoryFilter"><option value="">All categories</option></select>
     </div>
   </section>
 
@@ -186,58 +102,32 @@
   <footer id="footerText"></footer>
 
   <script>
+    const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbz06ws3xbav4UtpnY2WLmyH3oDKQZxjLITalLXaivQacgD4_XqzalVZRI6esWjFdUxQ/exec';
+
     let catalog = { settings: {}, categories: [], products: [] };
     let cart = [];
-
-    const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbz06ws3xbav4UtpnY2WLmyH3oDKQZxjLITalLXaivQacgD4_XqzalVZRI6esWjFdUxQ/exec';
 
     document.addEventListener('DOMContentLoaded', init);
 
     function init() {
       document.getElementById('search').addEventListener('input', renderProducts);
       document.getElementById('categoryFilter').addEventListener('change', renderProducts);
-      loadCatalogFromApi();
+      loadCatalogJsonpOnly();
     }
 
-    async function loadCatalogFromApi() {
-      if (!CATALOG_API_URL || CATALOG_API_URL.includes('PASTE_YOUR')) {
-        showError({ message: 'Catalog API URL is missing or invalid. Contact the catalog owner.' });
-        return;
-      }
-
-      document.getElementById('stats').textContent = 'Loading catalog...';
-
-      // First try normal JSON. This works on GitHub Pages if Apps Script allows the response.
-      try {
-        const url = CATALOG_API_URL + (CATALOG_API_URL.includes('?') ? '&' : '?') + 'v=' + Date.now();
-        const res = await fetch(url, { method: 'GET', cache: 'no-store' });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        loadCatalog(data);
-        return;
-      } catch (fetchError) {
-        console.warn('Normal JSON load failed. Trying JSONP fallback.', fetchError);
-      }
-
-      // Fallback to JSONP. This requires Code.gs to support ?callback=name
-      loadCatalogViaJsonp();
-    }
-
-    function loadCatalogViaJsonp() {
-      const callbackName = 'catalogCallback_' + Date.now();
+    function loadCatalogJsonpOnly() {
+      const callbackName = 'catalogCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
       const script = document.createElement('script');
       const separator = CATALOG_API_URL.includes('?') ? '&' : '?';
       let completed = false;
 
       window[callbackName] = function(response) {
         completed = true;
-        try {
-          delete window[callbackName];
-          script.remove();
-        } catch (e) {}
+        try { delete window[callbackName]; } catch (e) {}
+        try { script.remove(); } catch (e) {}
 
         if (!response || response.ok === false) {
-          showError({ message: response && response.error ? response.error : 'Could not load catalog data.' });
+          showError(response && response.error ? response.error : 'The catalog API returned an invalid response.');
           return;
         }
 
@@ -246,73 +136,45 @@
 
       script.onerror = function() {
         if (completed) return;
+        completed = true;
         try { delete window[callbackName]; } catch (e) {}
-        showError({ message: 'Could not connect to the catalog API. Check Apps Script deployment, public access, and the Web App /exec URL.' });
+        showError('Could not connect to the catalog API. Confirm that the Apps Script /exec URL supports ?callback=test and returns test({...});');
       };
 
-      script.src = CATALOG_API_URL + separator + 'callback=' + encodeURIComponent(callbackName) + '&v=' + Date.now();
-      document.body.appendChild(script);
-
       setTimeout(function() {
-        if (!completed) {
-          try { script.remove(); delete window[callbackName]; } catch (e) {}
-          showError({ message: 'Catalog API did not respond. Test the Apps Script URL with ?callback=test. It must return test({...}); not the catalog page.' });
-        }
+        if (completed) return;
+        completed = true;
+        try { delete window[callbackName]; } catch (e) {}
+        try { script.remove(); } catch (e) {}
+        showError('Catalog API timed out. Test the Apps Script URL with ?callback=test. It must return test({...}); not plain JSON.');
       }, 12000);
+
+      script.src = CATALOG_API_URL + separator + 'callback=' + encodeURIComponent(callbackName) + '&cacheBust=' + Date.now();
+      document.body.appendChild(script);
     }
 
     function loadCatalog(data) {
-      catalog = normalizeCatalog(data || catalog);
+      catalog = data || catalog;
+      catalog.products = (catalog.products || []).map((p, index) => {
+        if (!p.id) p.id = 'AUTO_' + index;
+        return p;
+      });
+
       applySettings(catalog.settings || {});
       populateCategories(catalog.categories || []);
       renderProducts();
       updateCartBar();
     }
 
-    function normalizeCatalog(data) {
-      const clean = data || {};
-      clean.settings = clean.settings || {};
-      clean.products = Array.isArray(clean.products) ? clean.products : [];
-      clean.products = clean.products.map((p, index) => {
-        const product = Object.assign({}, p);
-        if (!product.id) {
-          product.id = makeProductId(product, index);
-        }
-        return product;
-      });
-
-      if (!Array.isArray(clean.categories) || !clean.categories.length) {
-        clean.categories = [...new Set(clean.products.map(p => p.category).filter(Boolean))];
-      }
-
-      return clean;
-    }
-
-    function makeProductId(p, index) {
-      const base = [p.category, p.brand, p.productName, p.variant, p.description, index]
-        .join('-')
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-      return base || ('product-' + index);
-    }
-
     function applySettings(settings) {
-      document.documentElement.style.setProperty('--theme', settings.themeColor || settings['Theme Color'] || '#111827');
-      document.documentElement.style.setProperty('--accent', settings.accentColor || settings['Accent Color'] || '#F59E0B');
-      document.title = settings.storeName || settings['Store Name'] || 'Retail Catalog';
-      document.getElementById('catalogTitle').textContent = settings.catalogTitle || settings['Catalog Title'] || settings.storeName || settings['Store Name'] || 'Product Catalog';
-      document.getElementById('welcomeText').textContent = settings.welcomeText || settings['Welcome Text'] || '';
-      document.getElementById('footerText').textContent = settings.footerText || settings['Footer Text'] || '';
-
+      document.documentElement.style.setProperty('--theme', settings.themeColor || '#111827');
+      document.documentElement.style.setProperty('--accent', settings.accentColor || '#F59E0B');
+      document.title = settings.storeName || 'Retail Catalog';
+      document.getElementById('catalogTitle').textContent = settings.catalogTitle || settings.storeName || 'Product Catalog';
+      document.getElementById('welcomeText').textContent = settings.welcomeText || '';
+      document.getElementById('footerText').textContent = settings.footerText || '';
       const logo = document.getElementById('logo');
-      const logoUrl = settings.logoUrl || settings['Logo URL'] || '';
-      if (logoUrl) {
-        logo.src = logoUrl;
-        logo.style.display = 'block';
-      } else {
-        logo.style.display = 'none';
-      }
+      if (settings.logoUrl) { logo.src = settings.logoUrl; logo.style.display = 'block'; }
     }
 
     function populateCategories(categories) {
@@ -331,7 +193,7 @@
       const empty = document.getElementById('emptyState');
       const search = document.getElementById('search').value.trim().toLowerCase();
       const category = document.getElementById('categoryFilter').value;
-      const currency = catalog.settings.currency || catalog.settings.Currency || 'SRD';
+      const currency = catalog.settings.currency || 'SRD';
 
       const products = (catalog.products || []).filter(p => {
         const haystack = [p.category, p.brand, p.productName, p.variant, p.description].join(' ').toLowerCase();
@@ -341,8 +203,6 @@
       document.getElementById('stats').textContent = `${products.length} product${products.length === 1 ? '' : 's'} shown`;
       grid.innerHTML = '';
       empty.style.display = products.length ? 'none' : 'block';
-      empty.textContent = 'No products found.';
-
       products.forEach(p => grid.appendChild(productCard(p, currency)));
     }
 
@@ -354,7 +214,6 @@
       const badgeClass = soldOut ? 'sold' : (lowStock ? 'low' : '');
       const title = [p.brand, p.productName].filter(Boolean).join(' ');
       const price = formatMoney(p.retailPrice, currency);
-      const safeId = escapeAttr(p.id);
       const img = p.imageUrl
         ? `<img src="${escapeAttr(p.imageUrl)}" alt="${escapeAttr(title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;noimg&quot;>Image unavailable</div>'" />`
         : '<div class="noimg">No image</div>';
@@ -371,8 +230,8 @@
             <div class="badge ${badgeClass}">${escapeHtml(p.stockStatus || 'Available')}</div>
           </div>
           <div class="qty-row">
-            <input type="number" min="${Number(p.moq || 1)}" value="${Number(p.moq || 1)}" id="qty-${safeId}" ${soldOut ? 'disabled' : ''} />
-            <button class="btn" onclick="addToCart('${safeId}')" ${soldOut ? 'disabled' : ''}>Add</button>
+            <input type="number" min="${Number(p.moq || 1)}" value="${Number(p.moq || 1)}" id="qty-${escapeAttr(p.id)}" ${soldOut ? 'disabled' : ''} />
+            <button class="btn" onclick="addToCart('${escapeJs(p.id)}')" ${soldOut ? 'disabled' : ''}>Add</button>
           </div>
         </div>`;
       return card;
@@ -401,20 +260,13 @@
 
     function sendWhatsAppOrder() {
       const settings = catalog.settings || {};
-      const phone = settings.whatsappNumber || settings['WhatsApp Number'];
-      if (!phone) {
-        alert('WhatsApp number is missing in Settings sheet.');
-        return;
-      }
-      if (!cart.length) {
-        alert('Please add at least one product first.');
-        return;
-      }
+      const phone = String(settings.whatsappNumber || '').replace(/\D/g, '');
+      if (!phone) return alert('WhatsApp number is missing in Settings sheet.');
+      if (!cart.length) return alert('Please add at least one product first.');
 
-      const currency = settings.currency || settings.Currency || 'SRD';
-      const storeName = settings.storeName || settings['Store Name'] || '';
+      const currency = settings.currency || 'SRD';
       const lines = [];
-      lines.push(`Hi ${storeName}, I would like to order:`.trim());
+      lines.push(`Hi ${settings.storeName || ''}, I would like to order:`.trim());
       lines.push('');
 
       let total = 0;
@@ -436,9 +288,7 @@
       lines.push('Name:');
       lines.push('Delivery/Pickup:');
 
-      const cleanPhone = String(phone).replace(/\D/g, '');
-      const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(lines.join('\n'))}`;
-      window.open(url, '_blank');
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
     }
 
     function formatMoney(value, currency) {
@@ -446,16 +296,21 @@
       return `${currency} ${number.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
     }
 
-    function showError(error) {
+    function showError(message) {
       document.getElementById('stats').textContent = 'Could not load catalog.';
       document.getElementById('emptyState').style.display = 'block';
-      document.getElementById('emptyState').textContent = error && error.message ? error.message : 'Unknown error.';
+      document.getElementById('emptyState').textContent = message || 'Unknown error.';
     }
 
     function escapeHtml(value) {
       return String(value || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
     }
+
     function escapeAttr(value) { return escapeHtml(value); }
+
+    function escapeJs(value) {
+      return String(value || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
   </script>
 </body>
 </html>
