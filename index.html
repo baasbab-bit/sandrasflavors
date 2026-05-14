@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Retail Catalog</title>
+  <style>
+    :root {
+      --theme: #111827;
+      --accent: #F59E0B;
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --text: #111827;
+      --muted: #64748B;
+      --line: #E2E8F0;
+      --danger: #B91C1C;
+      --ok: #047857;
+      --warn: #B45309;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      background: linear-gradient(135deg, var(--theme), #020617);
+      color: white;
+      padding: 22px 16px 28px;
+      border-bottom: 4px solid var(--accent);
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    .brand-row { display: flex; gap: 12px; align-items: center; }
+    .logo {
+      width: 52px; height: 52px; border-radius: 14px;
+      object-fit: cover; background: rgba(255,255,255,.12);
+      display: none;
+    }
+    h1 { margin: 0; font-size: 26px; line-height: 1.15; }
+    .subtitle { margin: 8px 0 0; color: #CBD5E1; font-size: 14px; line-height: 1.45; }
+    .toolbar {
+      background: white;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      padding: 12px 16px;
+    }
+    .toolbar-grid {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 220px; gap: 10px;
+    }
+    input, select, button {
+      font: inherit;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      padding: 12px;
+      background: white;
+    }
+    input:focus, select:focus { outline: 2px solid color-mix(in srgb, var(--accent), transparent 65%); }
+    main { padding: 18px 16px 120px; }
+    .stats { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 10px 22px rgba(15, 23, 42, .06);
+      display: flex;
+      flex-direction: column;
+    }
+    .imgbox {
+      background: #E5E7EB;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .imgbox img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .noimg { color: var(--muted); font-size: 13px; padding: 20px; text-align: center; }
+    .content { padding: 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+    .category { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+    .title { font-weight: 800; font-size: 16px; line-height: 1.25; }
+    .variant { color: var(--muted); font-size: 14px; }
+    .desc { font-size: 13px; color: #334155; line-height: 1.35; min-height: 35px; }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .price { font-weight: 900; font-size: 19px; color: var(--theme); }
+    .badge {
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: #ECFDF5;
+      color: var(--ok);
+      white-space: nowrap;
+    }
+    .badge.low { background: #FFFBEB; color: var(--warn); }
+    .badge.sold { background: #FEF2F2; color: var(--danger); }
+    .qty-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
+    .qty-row input { width: 100%; text-align: center; }
+    .btn {
+      cursor: pointer;
+      border: none;
+      background: var(--theme);
+      color: white;
+      font-weight: 800;
+      transition: transform .05s ease, opacity .2s ease;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn[disabled] { opacity: .45; cursor: not-allowed; }
+    .cartbar {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: white;
+      border-top: 1px solid var(--line);
+      padding: 12px 16px;
+      z-index: 30;
+      box-shadow: 0 -10px 30px rgba(15,23,42,.10);
+    }
+    .cart-inner {
+      max-width: 1100px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center;
+    }
+    .cart-info { font-size: 14px; color: var(--muted); }
+    .cart-info strong { color: var(--text); }
+    .whatsapp { background: #16A34A; color: white; border: none; font-weight: 900; cursor: pointer; }
+    .clear { background: #F1F5F9; color: #334155; border: 1px solid var(--line); cursor: pointer; }
+    .empty {
+      text-align: center; color: var(--muted); padding: 50px 16px;
+      background: white; border-radius: 18px; border: 1px solid var(--line);
+    }
+    footer { color: var(--muted); font-size: 12px; text-align: center; padding: 24px 16px; }
+    @media (max-width: 850px) {
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      h1 { font-size: 22px; }
+      .toolbar-grid { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .cart-inner { grid-template-columns: 1fr; }
+      .cart-inner button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap brand-row">
+      <img id="logo" class="logo" alt="Logo" />
+      <div>
+        <h1 id="catalogTitle">Product Catalog</h1>
+        <p class="subtitle" id="welcomeText">Browse our available products and order directly via WhatsApp.</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="toolbar">
+    <div class="toolbar-grid">
+      <input id="search" type="search" placeholder="Search product, brand, flavor..." />
+      <select id="categoryFilter">
+        <option value="">All categories</option>
+      </select>
+    </div>
+  </section>
+
+  <main class="wrap">
+    <div class="stats" id="stats">Loading catalog...</div>
+    <section class="grid" id="productGrid"></section>
+    <div class="empty" id="emptyState" style="display:none;">No products found.</div>
+  </main>
+
+  <section class="cartbar">
+    <div class="cart-inner">
+      <div class="cart-info" id="cartInfo"><strong>0</strong> items selected</div>
+      <button class="clear" onclick="clearCart()">Clear</button>
+      <button class="whatsapp" onclick="sendWhatsAppOrder()">Send WhatsApp Order</button>
+    </div>
+  </section>
+
+  <footer id="footerText"></footer>
+
+  <script>
+    let catalog = { settings: {}, categories: [], products: [] };
+    let cart = [];
+
+    /************************************************************
+     * STATIC HOSTING SETUP
+     * Paste your deployed Apps Script Web App URL below.
+     * Example:
+     * const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbxxxx/exec';
+     ************************************************************/
+    const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbz06ws3xbav4UtpnY2WLmyH3oDKQZxjLITalLXaivQacgD4_XqzalVZRI6esWjFdUxQ/exec';
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    function init() {
+      document.getElementById('search').addEventListener('input', renderProducts);
+      document.getElementById('categoryFilter').addEventListener('change', renderProducts);
+      loadCatalogFromApi();
+    }
+
+    function loadCatalogFromApi() {
+      if (!CATALOG_API_URL || CATALOG_API_URL.includes('PASTE_YOUR')) {
+        showError({ message: 'Catalog API URL is missing or invalid. Contact the catalog owner.' });
+        return;
+      }
+
+      const callbackName = 'catalogCallback_' + Date.now();
+      const script = document.createElement('script');
+      const separator = CATALOG_API_URL.includes('?') ? '&' : '?';
+
+      window[callbackName] = function(response) {
+        try {
+          delete window[callbackName];
+          script.remove();
+        } catch (e) {}
+
+        if (!response || response.ok === false) {
+          showError({ message: response && response.error ? response.error : 'Could not load catalog data.' });
+          return;
+        }
+
+        loadCatalog(response);
+      };
+
+      script.onerror = function() {
+        try { delete window[callbackName]; } catch (e) {}
+        showError({ message: 'Could not connect to the catalog API. Check the Apps Script deployment URL and access settings.' });
+      };
+
+      script.src = CATALOG_API_URL + separator + 'action=catalog&callback=' + encodeURIComponent(callbackName) + '&v=' + Date.now();
+      document.body.appendChild(script);
+    }
+
+    function loadCatalog(data) {
+      catalog = data || catalog;
+      applySettings(catalog.settings || {});
+      populateCategories(catalog.categories || []);
+      renderProducts();
+      updateCartBar();
+    }
+
+    function applySettings(settings) {
+      document.documentElement.style.setProperty('--theme', settings.themeColor || '#111827');
+      document.documentElement.style.setProperty('--accent', settings.accentColor || '#F59E0B');
+      document.title = settings.storeName || 'Retail Catalog';
+      document.getElementById('catalogTitle').textContent = settings.catalogTitle || settings.storeName || 'Product Catalog';
+      document.getElementById('welcomeText').textContent = settings.welcomeText || '';
+      document.getElementById('footerText').textContent = settings.footerText || '';
+
+      const logo = document.getElementById('logo');
+      if (settings.logoUrl) {
+        logo.src = settings.logoUrl;
+        logo.style.display = 'block';
+      }
+    }
+
+    function populateCategories(categories) {
+      const select = document.getElementById('categoryFilter');
+      select.innerHTML = '<option value="">All categories</option>';
+      categories.forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('productGrid');
+      const empty = document.getElementById('emptyState');
+      const search = document.getElementById('search').value.trim().toLowerCase();
+      const category = document.getElementById('categoryFilter').value;
+      const currency = catalog.settings.currency || 'SRD';
+
+      const products = (catalog.products || []).filter(p => {
+        const haystack = [p.category, p.brand, p.productName, p.variant, p.description].join(' ').toLowerCase();
+        return (!category || p.category === category) && (!search || haystack.includes(search));
+      });
+
+      document.getElementById('stats').textContent = `${products.length} product${products.length === 1 ? '' : 's'} shown`;
+      grid.innerHTML = '';
+      empty.style.display = products.length ? 'none' : 'block';
+
+      products.forEach(p => grid.appendChild(productCard(p, currency)));
+    }
+
+    function productCard(p, currency) {
+      const card = document.createElement('article');
+      card.className = 'card';
+      const soldOut = String(p.stockStatus || '').toLowerCase().includes('sold');
+      const lowStock = String(p.stockStatus || '').toLowerCase().includes('low');
+      const badgeClass = soldOut ? 'sold' : (lowStock ? 'low' : '');
+      const title = [p.brand, p.productName].filter(Boolean).join(' ');
+      const price = formatMoney(p.retailPrice, currency);
+      const img = p.imageUrl
+        ? `<img src="${escapeAttr(p.imageUrl)}" alt="${escapeAttr(title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;noimg&quot;>Image unavailable</div>'" />`
+        : '<div class="noimg">No image</div>';
+
+      card.innerHTML = `
+        <div class="imgbox">${img}</div>
+        <div class="content">
+          <div class="category">${escapeHtml(p.category || '')}</div>
+          <div class="title">${escapeHtml(title)}</div>
+          ${p.variant ? `<div class="variant">${escapeHtml(p.variant)}</div>` : ''}
+          ${p.description ? `<div class="desc">${escapeHtml(p.description)}</div>` : '<div class="desc"></div>'}
+          <div class="row">
+            <div class="price">${price}</div>
+            <div class="badge ${badgeClass}">${escapeHtml(p.stockStatus || 'Available')}</div>
+          </div>
+          <div class="qty-row">
+            <input type="number" min="${Number(p.moq || 1)}" value="${Number(p.moq || 1)}" id="qty-${p.id}" ${soldOut ? 'disabled' : ''} />
+            <button class="btn" onclick="addToCart('${p.id}')" ${soldOut ? 'disabled' : ''}>Add</button>
+          </div>
+        </div>`;
+      return card;
+    }
+
+    function addToCart(id) {
+      const product = catalog.products.find(p => p.id === id);
+      if (!product) return;
+      const qtyInput = document.getElementById('qty-' + id);
+      const qty = Math.max(Number(product.moq || 1), Number(qtyInput.value || product.moq || 1));
+      const existing = cart.find(item => item.id === id);
+      if (existing) existing.qty += qty;
+      else cart.push({ id, qty });
+      updateCartBar();
+    }
+
+    function updateCartBar() {
+      const count = cart.reduce((sum, item) => sum + Number(item.qty || 0), 0);
+      document.getElementById('cartInfo').innerHTML = `<strong>${count}</strong> item${count === 1 ? '' : 's'} selected`;
+    }
+
+    function clearCart() {
+      cart = [];
+      updateCartBar();
+    }
+
+    function sendWhatsAppOrder() {
+      const settings = catalog.settings || {};
+      const phone = settings.whatsappNumber;
+      if (!phone) {
+        alert('WhatsApp number is missing in Settings sheet.');
+        return;
+      }
+      if (!cart.length) {
+        alert('Please add at least one product first.');
+        return;
+      }
+
+      const currency = settings.currency || 'SRD';
+      const lines = [];
+      lines.push(`Hi ${settings.storeName || ''}, I would like to order:`.trim());
+      lines.push('');
+
+      let total = 0;
+      cart.forEach((item, index) => {
+        const p = catalog.products.find(product => product.id === item.id);
+        if (!p) return;
+        const name = [p.brand, p.productName, p.variant].filter(Boolean).join(' - ');
+        const lineTotal = Number(p.retailPrice || 0) * Number(item.qty || 0);
+        total += lineTotal;
+        lines.push(`${index + 1}. ${name}`);
+        lines.push(`Qty: ${item.qty}`);
+        lines.push(`Price: ${formatMoney(p.retailPrice, currency)}`);
+        lines.push(`Subtotal: ${formatMoney(lineTotal, currency)}`);
+        lines.push('');
+      });
+
+      lines.push(`Estimated total: ${formatMoney(total, currency)}`);
+      lines.push('');
+      lines.push('Name:');
+      lines.push('Delivery/Pickup:');
+
+      const url = `https://wa.me/${phone}?text=${encodeURIComponent(lines.join('\n'))}`;
+      window.open(url, '_blank');
+    }
+
+    function formatMoney(value, currency) {
+      const number = Number(value || 0);
+      return `${currency} ${number.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+    }
+
+    function showError(error) {
+      document.getElementById('stats').textContent = 'Could not load catalog.';
+      document.getElementById('emptyState').style.display = 'block';
+      document.getElementById('emptyState').textContent = error && error.message ? error.message : 'Unknown error.';
+    }
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    }
+    function escapeAttr(value) { return escapeHtml(value); }
+  </script>
+</body>
+</html>
