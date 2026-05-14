@@ -28,6 +28,7 @@
     .toolbar { background: white; border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 10; padding: 12px 16px; }
     .toolbar-grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 220px; gap: 10px; }
     input, select, button { font: inherit; border-radius: 12px; border: 1px solid var(--line); padding: 12px; background: white; }
+    input:focus, select:focus { outline: 2px solid rgba(245, 158, 11, .35); }
     main { padding: 18px 16px 120px; }
     .stats { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
     .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
@@ -38,15 +39,12 @@
     .content { padding: 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
     .category { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
     .title { font-weight: 800; font-size: 16px; line-height: 1.25; }
-    .variant { color: var(--muted); font-size: 14px; }
     .desc { font-size: 13px; color: #334155; line-height: 1.35; min-height: 35px; }
     .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .price { font-weight: 900; font-size: 19px; color: var(--theme); }
     .badge { font-size: 12px; font-weight: 700; border-radius: 999px; padding: 6px 9px; background: #ECFDF5; color: var(--ok); white-space: nowrap; }
     .badge.low { background: #FFFBEB; color: var(--warn); }
     .badge.sold { background: #FEF2F2; color: var(--danger); }
-    .qty-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: auto; }
-    .qty-row input { width: 100%; text-align: center; }
     .btn { cursor: pointer; border: none; background: var(--theme); color: white; font-weight: 800; }
     .btn[disabled] { opacity: .45; cursor: not-allowed; }
     .cartbar { position: fixed; left: 0; right: 0; bottom: 0; background: white; border-top: 1px solid var(--line); padding: 12px 16px; z-index: 30; box-shadow: 0 -10px 30px rgba(15,23,42,.10); }
@@ -57,6 +55,18 @@
     .clear { background: #F1F5F9; color: #334155; border: 1px solid var(--line); cursor: pointer; }
     .empty { text-align: center; color: var(--muted); padding: 50px 16px; background: white; border-radius: 18px; border: 1px solid var(--line); }
     footer { color: var(--muted); font-size: 12px; text-align: center; padding: 24px 16px; }
+    .modal-wrap { position: fixed; inset: 0; z-index: 1000; display: none; }
+    .modal-overlay { position: absolute; inset: 0; background: rgba(15, 23, 42, .68); }
+    .modal-box { position: relative; width: min(94vw, 620px); max-height: 86vh; overflow: auto; margin: 7vh auto; background: white; border-radius: 22px; box-shadow: 0 30px 80px rgba(0,0,0,.28); }
+    .modal-head { padding: 18px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .modal-head h2 { margin: 0; font-size: 20px; }
+    .modal-sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .modal-body { padding: 12px 18px 18px; }
+    .flavor-row { display: grid; grid-template-columns: 1fr 90px 80px; gap: 10px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .flavor-name { font-weight: 800; }
+    .flavor-meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .flavor-row input { width: 100%; text-align: center; padding: 10px; }
+    .xbtn { background: #F1F5F9; color: #334155; border: 1px solid var(--line); cursor: pointer; padding: 9px 12px; }
     @media (max-width: 850px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 560px) {
       h1 { font-size: 22px; }
@@ -64,6 +74,7 @@
       .grid { grid-template-columns: 1fr; }
       .cart-inner { grid-template-columns: 1fr; }
       .cart-inner button { width: 100%; }
+      .flavor-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -99,12 +110,27 @@
     </div>
   </section>
 
+  <div class="modal-wrap" id="flavorModal">
+    <div class="modal-overlay" onclick="closeFlavorModal()"></div>
+    <div class="modal-box">
+      <div class="modal-head">
+        <div>
+          <h2 id="modalTitle">Select Flavor</h2>
+          <div class="modal-sub" id="modalSub"></div>
+        </div>
+        <button class="xbtn" onclick="closeFlavorModal()">Close</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
   <footer id="footerText"></footer>
 
   <script>
     const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbw94BoVT0_3nqqv2ZrOERGnFwaZFbhac5SmyEOeJFFbMF2NQp5Kn7v5zoY4RQVZWvrf/exec';
 
     let catalog = { settings: {}, categories: [], products: [] };
+    let groupedCatalog = [];
     let cart = [];
 
     document.addEventListener('DOMContentLoaded', init);
@@ -138,7 +164,7 @@
         if (completed) return;
         completed = true;
         try { delete window[callbackName]; } catch (e) {}
-        showError('Could not connect to the catalog API. Confirm that the Apps Script /exec URL supports ?callback=test and returns test({...});');
+        showError('Could not connect to the catalog API. Confirm Apps Script is deployed as Web App with access set to Anyone.');
       };
 
       setTimeout(function() {
@@ -146,7 +172,7 @@
         completed = true;
         try { delete window[callbackName]; } catch (e) {}
         try { script.remove(); } catch (e) {}
-        showError('Catalog API timed out. Test the Apps Script URL with ?callback=test. It must return test({...}); not plain JSON.');
+        showError('Catalog API timed out. Test the Apps Script URL with ?callback=test. It must return test({...});');
       }, 12000);
 
       script.src = CATALOG_API_URL + separator + 'callback=' + encodeURIComponent(callbackName) + '&cacheBust=' + Date.now();
@@ -156,14 +182,44 @@
     function loadCatalog(data) {
       catalog = data || catalog;
       catalog.products = (catalog.products || []).map((p, index) => {
-        if (!p.id) p.id = 'AUTO_' + index;
+        if (!p.id) p.id = makeFallbackId(p, index);
         return p;
       });
-
+      groupedCatalog = groupProducts(catalog.products);
       applySettings(catalog.settings || {});
       populateCategories(catalog.categories || []);
       renderProducts();
       updateCartBar();
+    }
+
+    function groupProducts(products) {
+      const groups = {};
+
+      products.forEach(product => {
+        const key = [product.category, product.brand, product.productName].join('___').toLowerCase();
+
+        if (!groups[key]) {
+          groups[key] = {
+            key,
+            category: product.category || '',
+            brand: product.brand || '',
+            productName: product.productName || '',
+            description: product.description || '',
+            imageUrl: product.imageUrl || '',
+            retailPrice: Number(product.retailPrice || 0),
+            sortOrder: Number(product.sortOrder || 9999),
+            flavors: []
+          };
+        }
+
+        groups[key].flavors.push(product);
+
+        if (!groups[key].imageUrl && product.imageUrl) groups[key].imageUrl = product.imageUrl;
+        if (!groups[key].description && product.description) groups[key].description = product.description;
+        if (!groups[key].retailPrice && product.retailPrice) groups[key].retailPrice = Number(product.retailPrice || 0);
+      });
+
+      return Object.values(groups).sort((a, b) => a.sortOrder - b.sortOrder);
     }
 
     function applySettings(settings) {
@@ -173,8 +229,14 @@
       document.getElementById('catalogTitle').textContent = settings.catalogTitle || settings.storeName || 'Product Catalog';
       document.getElementById('welcomeText').textContent = settings.welcomeText || '';
       document.getElementById('footerText').textContent = settings.footerText || '';
+
       const logo = document.getElementById('logo');
-      if (settings.logoUrl) { logo.src = settings.logoUrl; logo.style.display = 'block'; }
+      if (settings.logoUrl) {
+        logo.src = settings.logoUrl;
+        logo.style.display = 'block';
+      } else {
+        logo.style.display = 'none';
+      }
     }
 
     function populateCategories(categories) {
@@ -195,56 +257,97 @@
       const category = document.getElementById('categoryFilter').value;
       const currency = catalog.settings.currency || 'SRD';
 
-      const products = (catalog.products || []).filter(p => {
-        const haystack = [p.category, p.brand, p.productName, p.variant, p.description].join(' ').toLowerCase();
-        return (!category || p.category === category) && (!search || haystack.includes(search));
+      const groups = groupedCatalog.filter(group => {
+        const flavorText = group.flavors.map(f => f.flavor).join(' ');
+        const haystack = [group.category, group.brand, group.productName, group.description, flavorText].join(' ').toLowerCase();
+        return (!category || group.category === category) && (!search || haystack.includes(search));
       });
 
-      document.getElementById('stats').textContent = `${products.length} product${products.length === 1 ? '' : 's'} shown`;
+      document.getElementById('stats').textContent = `${groups.length} product${groups.length === 1 ? '' : 's'} shown`;
       grid.innerHTML = '';
-      empty.style.display = products.length ? 'none' : 'block';
-      products.forEach(p => grid.appendChild(productCard(p, currency)));
+      empty.style.display = groups.length ? 'none' : 'block';
+      groups.forEach(group => grid.appendChild(groupedProductCard(group, currency)));
     }
 
-    function productCard(p, currency) {
+    function groupedProductCard(group, currency) {
       const card = document.createElement('article');
       card.className = 'card';
-      const soldOut = String(p.stockStatus || '').toLowerCase().includes('sold');
-      const lowStock = String(p.stockStatus || '').toLowerCase().includes('low');
-      const badgeClass = soldOut ? 'sold' : (lowStock ? 'low' : '');
-      const title = [p.brand, p.productName].filter(Boolean).join(' ');
-      const price = formatMoney(p.retailPrice, currency);
-      const img = p.imageUrl
-        ? `<img src="${escapeAttr(p.imageUrl)}" alt="${escapeAttr(title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;noimg&quot;>Image unavailable</div>'" />`
+
+      const availableCount = group.flavors.filter(f => !isSoldOut(f)).length;
+      const totalFlavors = group.flavors.length;
+      const badgeText = totalFlavors === 1 ? '1 flavor' : `${totalFlavors} flavors`;
+      const title = [group.brand, group.productName].filter(Boolean).join(' ');
+      const price = formatMoney(group.retailPrice, currency);
+      const img = group.imageUrl
+        ? `<img src="${escapeAttr(group.imageUrl)}" alt="${escapeAttr(title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;noimg&quot;>Image unavailable</div>'" />`
         : '<div class="noimg">No image</div>';
 
       card.innerHTML = `
         <div class="imgbox">${img}</div>
         <div class="content">
-          <div class="category">${escapeHtml(p.category || '')}</div>
+          <div class="category">${escapeHtml(group.category || '')}</div>
           <div class="title">${escapeHtml(title)}</div>
-          ${p.variant ? `<div class="variant">${escapeHtml(p.variant)}</div>` : ''}
-          ${p.description ? `<div class="desc">${escapeHtml(p.description)}</div>` : '<div class="desc"></div>'}
+          ${group.description ? `<div class="desc">${escapeHtml(group.description)}</div>` : '<div class="desc"></div>'}
           <div class="row">
             <div class="price">${price}</div>
-            <div class="badge ${badgeClass}">${escapeHtml(p.stockStatus || 'Available')}</div>
+            <div class="badge">${badgeText}</div>
           </div>
-          <div class="qty-row">
-            <input type="number" min="${Number(p.moq || 1)}" value="${Number(p.moq || 1)}" id="qty-${escapeAttr(p.id)}" ${soldOut ? 'disabled' : ''} />
-            <button class="btn" onclick="addToCart('${escapeJs(p.id)}')" ${soldOut ? 'disabled' : ''}>Add</button>
-          </div>
+          <div class="desc">${availableCount} available</div>
+          <button class="btn" onclick="openFlavorModal('${escapeJs(group.key)}')">View Flavors</button>
         </div>`;
+
       return card;
     }
 
-    function addToCart(id) {
+    function openFlavorModal(groupKey) {
+      const group = groupedCatalog.find(g => g.key === groupKey);
+      if (!group) return;
+
+      const currency = catalog.settings.currency || 'SRD';
+      const title = [group.brand, group.productName].filter(Boolean).join(' ');
+
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalSub').textContent = `${group.flavors.length} flavor${group.flavors.length === 1 ? '' : 's'} available`;
+
+      const body = document.getElementById('modalBody');
+      body.innerHTML = '';
+
+      group.flavors.forEach(flavor => {
+        const soldOut = isSoldOut(flavor);
+        const row = document.createElement('div');
+        row.className = 'flavor-row';
+
+        row.innerHTML = `
+          <div>
+            <div class="flavor-name">${escapeHtml(flavor.flavor || 'Standard')}</div>
+            <div class="flavor-meta">${escapeHtml(flavor.stockStatus || 'Available')} • MOQ ${Number(flavor.moq || 1)}</div>
+          </div>
+          <input type="number" min="${Number(flavor.moq || 1)}" value="${Number(flavor.moq || 1)}" id="modalqty-${escapeAttr(flavor.id)}" ${soldOut ? 'disabled' : ''} />
+          <button class="btn" onclick="addFlavorToCart('${escapeJs(flavor.id)}')" ${soldOut ? 'disabled' : ''}>
+            ${formatMoney(flavor.retailPrice, currency)}
+          </button>
+        `;
+        body.appendChild(row);
+      });
+
+      document.getElementById('flavorModal').style.display = 'block';
+    }
+
+    function closeFlavorModal() {
+      document.getElementById('flavorModal').style.display = 'none';
+    }
+
+    function addFlavorToCart(id) {
       const product = catalog.products.find(p => String(p.id) === String(id));
       if (!product) return;
-      const qtyInput = document.getElementById('qty-' + id);
-      const qty = Math.max(Number(product.moq || 1), Number(qtyInput.value || product.moq || 1));
+
+      const qtyInput = document.getElementById('modalqty-' + id);
+      const qty = Math.max(Number(product.moq || 1), Number(qtyInput && qtyInput.value ? qtyInput.value : product.moq || 1));
+
       const existing = cart.find(item => String(item.id) === String(id));
       if (existing) existing.qty += qty;
       else cart.push({ id, qty });
+
       updateCartBar();
     }
 
@@ -261,6 +364,7 @@
     function sendWhatsAppOrder() {
       const settings = catalog.settings || {};
       const phone = String(settings.whatsappNumber || '').replace(/\D/g, '');
+
       if (!phone) return alert('WhatsApp number is missing in Settings sheet.');
       if (!cart.length) return alert('Please add at least one product first.');
 
@@ -270,12 +374,15 @@
       lines.push('');
 
       let total = 0;
+
       cart.forEach((item, index) => {
         const p = catalog.products.find(product => String(product.id) === String(item.id));
         if (!p) return;
-        const name = [p.brand, p.productName, p.variant].filter(Boolean).join(' - ');
+
+        const name = [p.brand, p.productName, p.flavor].filter(Boolean).join(' - ');
         const lineTotal = Number(p.retailPrice || 0) * Number(item.qty || 0);
         total += lineTotal;
+
         lines.push(`${index + 1}. ${name}`);
         lines.push(`Qty: ${item.qty}`);
         lines.push(`Price: ${formatMoney(p.retailPrice, currency)}`);
@@ -291,9 +398,21 @@
       window.open(`https://wa.me/${phone}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank');
     }
 
+    function isSoldOut(product) {
+      return String(product.stockStatus || '').toLowerCase().includes('sold');
+    }
+
     function formatMoney(value, currency) {
       const number = Number(value || 0);
       return `${currency} ${number.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+    }
+
+    function makeFallbackId(p, index) {
+      return [p.category, p.brand, p.productName, p.flavor, index + 1]
+        .join('_')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, '');
     }
 
     function showError(message) {
@@ -306,7 +425,9 @@
       return String(value || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
     }
 
-    function escapeAttr(value) { return escapeHtml(value); }
+    function escapeAttr(value) {
+      return escapeHtml(value);
+    }
 
     function escapeJs(value) {
       return String(value || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
