@@ -335,6 +335,144 @@
       }
       .checkout-actions { grid-template-columns: 1fr; }
     }
+  
+    /* Compact mobile catalog: 3 cards per row */
+    .card .btn {
+      min-height: 46px;
+    }
+
+    @media (max-width: 560px) {
+      main {
+        padding: 10px 8px 110px;
+      }
+
+      .toolbar {
+        padding: 10px 8px;
+      }
+
+      .toolbar-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      input, select, button, textarea {
+        border-radius: 10px;
+        padding: 9px;
+      }
+
+      .grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 8px;
+      }
+
+      .card {
+        border-radius: 13px;
+        box-shadow: 0 5px 14px rgba(15, 23, 42, .06);
+      }
+
+      .content {
+        padding: 8px;
+        gap: 5px;
+        min-height: 170px;
+      }
+
+      .category {
+        font-size: 9px;
+        letter-spacing: .04em;
+      }
+
+      .title {
+        font-size: 11px;
+        line-height: 1.2;
+        min-height: 27px;
+        -webkit-line-clamp: 2;
+      }
+
+      .desc {
+        display: none;
+      }
+
+      .price {
+        font-size: 13px;
+      }
+
+      .badge {
+        font-size: 9px;
+        padding: 4px 6px;
+      }
+
+      .product-actions {
+        gap: 6px;
+        padding-top: 4px;
+      }
+
+      .price-row {
+        min-height: 24px;
+        align-items: flex-start;
+      }
+
+      .card .btn {
+        min-height: 36px;
+        font-size: 11px;
+        padding: 8px 6px;
+        border-radius: 10px;
+      }
+
+      .stats {
+        margin-left: 2px;
+        font-size: 12px;
+      }
+
+      .cart-inner {
+        grid-template-columns: 1fr;
+      }
+
+      .cart-inner button {
+        width: 100%;
+      }
+
+      .flavor-row {
+        grid-template-columns: 54px 1fr;
+      }
+
+      .flavor-row .flavor-qty,
+      .flavor-row .btn {
+        grid-column: span 1;
+      }
+
+      .checkout-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 380px) {
+      .grid {
+        gap: 6px;
+      }
+
+      .content {
+        padding: 7px;
+        min-height: 160px;
+      }
+
+      .title {
+        font-size: 10px;
+      }
+
+      .price {
+        font-size: 12px;
+      }
+
+      .badge {
+        font-size: 8px;
+        padding: 3px 5px;
+      }
+
+      .card .btn {
+        font-size: 10px;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -527,7 +665,7 @@
       const title = [group.brand, group.productName].filter(Boolean).join(' ');
       const price = formatMoney(group.retailPrice, currency);
       const availableFlavors = group.flavors.filter(f => !String(f.stockStatus || '').toLowerCase().includes('sold'));
-      const flavorText = `${group.flavors.length} flavor${group.flavors.length === 1 ? '' : 's'}`;
+      const flavorText = `${group.flavors.length} option${group.flavors.length === 1 ? '' : 's'}`;
 
       const img = group.imageUrl
         ? `<img src="${escapeAttr(group.imageUrl)}" alt="${escapeAttr(title)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=&quot;noimg&quot;>Image unavailable</div>'" />`
@@ -545,7 +683,7 @@
               <div class="badge">${flavorText}</div>
             </div>
             <button class="btn" onclick="openFlavorModal('${escapeJs(group.key)}')" ${availableFlavors.length ? '' : 'disabled'}>
-              View Flavors
+              Order Now
             </button>
           </div>
         </div>`;
@@ -569,7 +707,7 @@
             <div class="modal-head">
               <div>
                 <h2>${escapeHtml(title)}</h2>
-                <div class="modal-sub">Select a flavor and quantity</div>
+                <div class="modal-sub">Select an option and quantity</div>
               </div>
               <button class="xbtn" onclick="closeFlavorModal()">×</button>
             </div>
@@ -626,7 +764,7 @@
 
       const productName = [product.brand, product.productName].filter(Boolean).join(' ');
       const flavorName = getFlavorName(product);
-      showToast('Added to order', `${qty} × ${productName}${flavorName && flavorName !== 'Default' ? ' - ' + flavorName : ''}`);
+      showToast('Added to order', `${qty} × ${productName}${flavorName && flavorName !== 'Default Option' ? ' - ' + flavorName : ''}`);
 
       flashAddButton(buttonEl);
     }
@@ -748,7 +886,7 @@
 
         const productName = [p.brand, p.productName].filter(Boolean).join(' ');
         const flavorName = getFlavorName(p);
-        const flavor = flavorName && flavorName !== 'Default' ? `Flavor: ${flavorName}` : '';
+        const flavor = flavorName && flavorName !== 'Default Option' ? `Flavor: ${flavorName}` : '';
         const lineTotal = Number(p.retailPrice || 0) * Number(item.qty || 0);
         total += lineTotal;
 
@@ -815,7 +953,7 @@
     }
 
     function getFlavorName(product) {
-      return product.flavor || product.variant || product.Variant || product.Flavor || product['Flavor'] || product['Variant'] || 'Default';
+      return product.flavor || product.variant || product.Variant || product.Flavor || product['Flavor'] || product['Variant'] || 'Default Option';
     }
 
     function formatMoney(value, currency) {
