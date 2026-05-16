@@ -1654,7 +1654,7 @@
   <div id="previewModal" style="display:none;"></div>
 
   <script>
-    const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbwonIrmVNHrytc6SDZTgaZEVrHBZhvA0Z8qsKPhWskh78ERlCRX0txkVYTxuTse602u/exec';
+    const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbxbYUOwrk8RjWnn3Xz1npyxJjQGPs57bTNIbZOUmw6BOwWXusdGUUEYawiNXeTMRWgg/exec';
 
     let catalog = { settings: {}, categories: [], products: [] };
     let cart = [];
@@ -2417,7 +2417,48 @@
       modal.innerHTML = '';
     }
 
-    function sendWhatsAppOrder() {
+    function logOrderToSheet(payload) {
+      return new Promise(resolve => {
+        const callbackName = 'orderLogCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+        const script = document.createElement('script');
+        const separator = CATALOG_API_URL.includes('?') ? '&' : '?';
+        let completed = false;
+
+        window[callbackName] = function(response) {
+          completed = true;
+          try { delete window[callbackName]; } catch (e) {}
+          try { script.remove(); } catch (e) {}
+          resolve(response || { ok: false, error: 'Empty response' });
+        };
+
+        script.onerror = function() {
+          if (completed) return;
+          completed = true;
+          try { delete window[callbackName]; } catch (e) {}
+          resolve({ ok: false, error: 'Could not connect to order logger.' });
+        };
+
+        setTimeout(function() {
+          if (completed) return;
+          completed = true;
+          try { delete window[callbackName]; } catch (e) {}
+          try { script.remove(); } catch (e) {}
+          resolve({ ok: false, error: 'Order logging timed out.' });
+        }, 8000);
+
+        script.src =
+          CATALOG_API_URL +
+          separator +
+          'action=logOrder' +
+          '&callback=' + encodeURIComponent(callbackName) +
+          '&payload=' + encodeURIComponent(JSON.stringify(payload)) +
+          '&cacheBust=' + Date.now();
+
+        document.body.appendChild(script);
+      });
+    }
+
+    async function sendWhatsAppOrder() {
       const settings = catalog.settings || {};
       const phone = String(settings.whatsappNumber || '').replace(/\D/g, '');
 
@@ -2445,9 +2486,72 @@
       }
 
       const currency = settings.currency || 'SRD';
+
+      const orderItems = [];
+      let total = 0;
+
+      cart.forEach(item => {
+        const p = catalog.products.find(product => String(product.id) === String(item.id));
+        if (!p) return;
+
+        const productName = p.productName || '';
+        const brand = p.brand || '';
+        const optionName = getFlavorName(p);
+        const qty = Number(item.qty || 0);
+        const price = Number(p.retailPrice || 0);
+        const subtotal = price * qty;
+
+        total += subtotal;
+
+        orderItems.push({
+          id: p.id,
+          brand,
+          productName,
+          optionName: optionName && optionName !== 'Default Option' ? optionName : '',
+          qty,
+          price,
+          subtotal
+        });
+      });
+
+      const orderPayload = {
+        customerName: name,
+        customerPhone,
+        customerAddress: address,
+        currency,
+        total,
+        items: orderItems,
+        source: 'Online Catalog',
+        createdAt: new Date().toISOString()
+      };
+
+      const checkoutError = document.getElementById('checkoutError');
+      if (checkoutError) {
+        checkoutError.style.display = 'none';
+        checkoutError.textContent = '';
+      }
+
+      const logResult = await logOrderToSheet(orderPayload);
+      const orderId = logResult && logResult.ok && logResult.orderId
+        ? logResult.orderId
+        : 'NOT-LOGGED';
+
+      if (!logResult || !logResult.ok) {
+        console.warn('Order logging failed:', logResult);
+        showToast('Order log warning', 'WhatsApp will still open, but the order was not saved.');
+      } else {
+        showToast('Order recorded', orderId);
+      }
+
       const lines = [];
 
       lines.push('🛒 *NEW ORDER*');
+      lines.push('');
+      lines.push('━━━━━━━━━━━━━━');
+      lines.push('🧾 *Order Reference*');
+      lines.push('━━━━━━━━━━━━━━');
+      lines.push('');
+      lines.push(`*Order ID:* ${orderId}`);
       lines.push('');
       lines.push('━━━━━━━━━━━━━━');
       lines.push('👤 *Customer Details*');
@@ -2466,27 +2570,18 @@
       lines.push('━━━━━━━━━━━━━━');
       lines.push('');
 
-      let total = 0;
-
-      cart.forEach((item, index) => {
-        const p = catalog.products.find(product => String(product.id) === String(item.id));
-        if (!p) return;
-
-        const productName = [p.brand, p.productName].filter(Boolean).join(' ');
-        const optionName = getFlavorName(p);
-        const lineTotal = Number(p.retailPrice || 0) * Number(item.qty || 0);
-
-        total += lineTotal;
+      orderItems.forEach((item, index) => {
+        const productName = [item.brand, item.productName].filter(Boolean).join(' ');
 
         lines.push(`*${index + 1}.* ${productName}`);
 
-        if (optionName && optionName !== 'Default Option') {
-          lines.push(`↳ ${optionName}`);
+        if (item.optionName) {
+          lines.push(`↳ ${item.optionName}`);
         }
 
         lines.push(`↳ Qty: ${item.qty}`);
-        lines.push(`↳ ${formatMoney(p.retailPrice, currency)} each`);
-        lines.push(`↳ Subtotal: ${formatMoney(lineTotal, currency)}`);
+        lines.push(`↳ ${formatMoney(item.price, currency)} each`);
+        lines.push(`↳ Subtotal: ${formatMoney(item.subtotal, currency)}`);
         lines.push('');
       });
 
