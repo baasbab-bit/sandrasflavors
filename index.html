@@ -1654,7 +1654,7 @@
   <div id="previewModal" style="display:none;"></div>
 
   <script>
-    const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbxbYUOwrk8RjWnn3Xz1npyxJjQGPs57bTNIbZOUmw6BOwWXusdGUUEYawiNXeTMRWgg/exec';
+    const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbzHkKuOkf4nh5oXn4tuOZlPQhosv1uQlISCyVs2h9aM1utjBBJLRI6S9HMwpgGE4QfN/exec';
 
     let catalog = { settings: {}, categories: [], products: [] };
     let cart = [];
@@ -2485,8 +2485,13 @@
         return;
       }
 
-      const currency = settings.currency || 'SRD';
+      /*
+        Open WhatsApp window immediately while still inside the user click event.
+        This prevents mobile browsers/popup blockers from blocking WhatsApp.
+      */
+      const waWindow = window.open('', '_blank');
 
+      const currency = settings.currency || 'SRD';
       const orderItems = [];
       let total = 0;
 
@@ -2531,7 +2536,10 @@
         checkoutError.textContent = '';
       }
 
+      showToast('Preparing order', 'Saving order and opening WhatsApp...');
+
       const logResult = await logOrderToSheet(orderPayload);
+
       const orderId = logResult && logResult.ok && logResult.orderId
         ? logResult.orderId
         : 'NOT-LOGGED';
@@ -2545,58 +2553,62 @@
 
       const lines = [];
 
-      lines.push('🛒 *NEW ORDER*');
+      lines.push('*NEW ORDER*');
       lines.push('');
       lines.push('━━━━━━━━━━━━━━');
-      lines.push('🧾 *Order Reference*');
+      lines.push('ORDER REFERENCE');
       lines.push('━━━━━━━━━━━━━━');
       lines.push('');
-      lines.push(`*Order ID:* ${orderId}`);
+      lines.push(`Order ID: ${orderId}`);
       lines.push('');
       lines.push('━━━━━━━━━━━━━━');
-      lines.push('👤 *Customer Details*');
+      lines.push('CUSTOMER DETAILS');
       lines.push('━━━━━━━━━━━━━━');
       lines.push('');
-      lines.push(`*Name:* ${name}`);
+      lines.push(`Name: ${name}`);
 
       if (customerPhone) {
-        lines.push(`*Phone:* ${customerPhone}`);
+        lines.push(`Phone: ${customerPhone}`);
       }
 
-      lines.push(`*Address:* ${address}`);
+      lines.push(`Address: ${address}`);
       lines.push('');
       lines.push('━━━━━━━━━━━━━━');
-      lines.push('📦 *Order Items*');
+      lines.push('ORDER ITEMS');
       lines.push('━━━━━━━━━━━━━━');
       lines.push('');
 
       orderItems.forEach((item, index) => {
         const productName = [item.brand, item.productName].filter(Boolean).join(' ');
 
-        lines.push(`*${index + 1}.* ${productName}`);
+        lines.push(`${index + 1}. ${productName}`);
 
         if (item.optionName) {
-          lines.push(`↳ ${item.optionName}`);
+          lines.push(`   ${item.optionName}`);
         }
 
-        lines.push(`↳ Qty: ${item.qty}`);
-        lines.push(`↳ ${formatMoney(item.price, currency)} each`);
-        lines.push(`↳ Subtotal: ${formatMoney(item.subtotal, currency)}`);
+        lines.push(`   Qty: ${item.qty}`);
+        lines.push(`   ${formatMoney(item.price, currency)} each`);
+        lines.push(`   Subtotal: ${formatMoney(item.subtotal, currency)}`);
         lines.push('');
       });
 
       lines.push('━━━━━━━━━━━━━━');
-      lines.push('💰 *Estimated Total*');
+      lines.push('ESTIMATED TOTAL');
       lines.push('━━━━━━━━━━━━━━');
       lines.push('');
-      lines.push(`*${formatMoney(total, currency)}*`);
+      lines.push(`${formatMoney(total, currency)}`);
       lines.push('');
       lines.push('━━━━━━━━━━━━━━');
-      lines.push('🕒 Sent via Online Catalog');
+      lines.push('Sent via Online Catalog');
       lines.push('━━━━━━━━━━━━━━');
-
       const url = `https://wa.me/${phone}?text=${encodeURIComponent(lines.join('\n'))}`;
-      window.open(url, '_blank');
+
+      if (waWindow) {
+        waWindow.location.href = url;
+      } else {
+        window.location.href = url;
+      }
 
       closeCheckoutModal();
     }
