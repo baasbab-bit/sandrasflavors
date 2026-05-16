@@ -170,6 +170,82 @@
 
 
 
+
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(245, 158, 11, .18), transparent 34%),
+        #020617;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .login-screen.show {
+      display: flex;
+    }
+
+    .login-card {
+      width: min(94vw, 420px);
+      background: rgba(15, 23, 42, .92);
+      border: 1px solid rgba(148, 163, 184, .28);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.42);
+      color: white;
+    }
+
+    .login-card h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .login-card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      margin: 8px 0 16px;
+    }
+
+    .login-card input {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .login-card button {
+      width: 100%;
+      background: var(--accent);
+      color: #111827;
+      border: none;
+      font-weight: 950;
+      cursor: pointer;
+    }
+
+    .login-error {
+      display: none;
+      color: #FCA5A5;
+      background: rgba(220, 38, 38, .16);
+      border: 1px solid rgba(248, 113, 113, .30);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .logout-btn {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: #E5E7EB;
+      font-weight: 900;
+      padding: 11px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
     .mobile-orders {
       display: none;
     }
@@ -376,7 +452,83 @@
         display: none;
       }
 
-      .mobile-orders {
+  
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(245, 158, 11, .18), transparent 34%),
+        #020617;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+
+    .login-screen.show {
+      display: flex;
+    }
+
+    .login-card {
+      width: min(94vw, 420px);
+      background: rgba(15, 23, 42, .92);
+      border: 1px solid rgba(148, 163, 184, .28);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 30px 90px rgba(0,0,0,.42);
+      color: white;
+    }
+
+    .login-card h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .login-card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      margin: 8px 0 16px;
+    }
+
+    .login-card input {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .login-card button {
+      width: 100%;
+      background: var(--accent);
+      color: #111827;
+      border: none;
+      font-weight: 950;
+      cursor: pointer;
+    }
+
+    .login-error {
+      display: none;
+      color: #FCA5A5;
+      background: rgba(220, 38, 38, .16);
+      border: 1px solid rgba(248, 113, 113, .30);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    .logout-btn {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: #E5E7EB;
+      font-weight: 900;
+      padding: 11px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .mobile-orders {
         display: block;
       }
 
@@ -653,13 +805,26 @@
   </style>
 </head>
 <body>
+  <div class="login-screen show" id="loginScreen">
+    <div class="login-card">
+      <h2>Admin Access</h2>
+      <p>Enter the private dashboard key to continue.</p>
+      <input id="adminKeyInput" type="password" placeholder="Admin key" autocomplete="current-password" />
+      <button onclick="loginAdmin()">Unlock Dashboard</button>
+      <div class="login-error" id="loginError"></div>
+    </div>
+  </div>
+
   <header>
     <div class="wrap topbar">
       <div>
         <h1>Wholesaler Dashboard</h1>
         <div class="sub">Orders, customer follow-up, and fulfillment tracking</div>
       </div>
-      <button class="refresh-btn" onclick="loadDashboard()">Refresh</button>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button class="logout-btn" onclick="logoutAdmin()">Logout</button>
+        <button class="refresh-btn" onclick="loadDashboard()">Refresh</button>
+      </div>
     </div>
   </header>
 
@@ -809,7 +974,9 @@
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbyDY524L-VT8YrKYTVs1EpvHW24MVzz9I4p0lUOxamhr-QYI2qK5IRmNj2MPnsrGLo/exec';
+    const ADMIN_KEY_STORAGE = 'wholesalerAdminKey_v1';
 
+    let adminKey = localStorage.getItem(ADMIN_KEY_STORAGE) || '';
     let orders = [];
     let currentOrder = null;
 
@@ -820,19 +987,33 @@
         renderOrders();
       });
       document.getElementById('dateFilter').addEventListener('change', renderOrders);
-      loadDashboard();
+
+      document.getElementById('adminKeyInput').addEventListener('keydown', event => {
+        if (event.key === 'Enter') loginAdmin();
+      });
+
+      if (adminKey) {
+        document.getElementById('loginScreen').classList.remove('show');
+        loadDashboard();
+      }
     });
 
     function apiCall(action, params = {}) {
       return new Promise(resolve => {
         const callbackName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
         const script = document.createElement('script');
-        const query = new URLSearchParams({
+        const queryPayload = {
           action,
           callback: callbackName,
           ...params,
           cacheBust: Date.now()
-        });
+        };
+
+        if (action.startsWith('admin')) {
+          queryPayload.adminKey = adminKey;
+        }
+
+        const query = new URLSearchParams(queryPayload);
 
         window[callbackName] = function(response) {
           try { delete window[callbackName]; } catch (e) {}
@@ -848,6 +1029,45 @@
         script.src = API_URL + '?' + query.toString();
         document.body.appendChild(script);
       });
+    }
+
+    async function loginAdmin() {
+      const input = document.getElementById('adminKeyInput');
+      const error = document.getElementById('loginError');
+      const key = input.value.trim();
+
+      if (!key) {
+        error.textContent = 'Enter the admin key.';
+        error.style.display = 'block';
+        return;
+      }
+
+      adminKey = key;
+
+      const response = await apiCall('adminSummary');
+
+      if (!response || !response.ok) {
+        adminKey = '';
+        localStorage.removeItem(ADMIN_KEY_STORAGE);
+        error.textContent = response && response.error ? response.error : 'Invalid admin key.';
+        error.style.display = 'block';
+        return;
+      }
+
+      localStorage.setItem(ADMIN_KEY_STORAGE, key);
+      error.style.display = 'none';
+      document.getElementById('loginScreen').classList.remove('show');
+
+      await loadDashboard();
+    }
+
+    function logoutAdmin() {
+      adminKey = '';
+      localStorage.removeItem(ADMIN_KEY_STORAGE);
+      orders = [];
+      renderOrders();
+      document.getElementById('adminKeyInput').value = '';
+      document.getElementById('loginScreen').classList.add('show');
     }
 
     async function loadDashboard() {
@@ -872,7 +1092,13 @@
         orders = orderResp.orders || [];
         renderOrders();
       } else {
-        alert(orderResp && orderResp.error ? orderResp.error : 'Could not load orders.');
+        if (orderResp && String(orderResp.error || '').toLowerCase().includes('unauthorized')) {
+          logoutAdmin();
+          document.getElementById('loginError').textContent = 'Unauthorized. Please enter the correct admin key.';
+          document.getElementById('loginError').style.display = 'block';
+        } else {
+          alert(orderResp && orderResp.error ? orderResp.error : 'Could not load orders.');
+        }
       }
     }
 
