@@ -92,6 +92,109 @@
       background: white;
     }
 
+
+    .category-chips-wrap {
+      max-width: 1100px;
+      margin: 12px auto 0;
+      position: relative;
+    }
+
+    .category-chips-wrap::before,
+    .category-chips-wrap::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 22px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .category-chips-wrap::before {
+      left: 0;
+      background: linear-gradient(90deg, white, rgba(255,255,255,0));
+    }
+
+    .category-chips-wrap::after {
+      right: 0;
+      background: linear-gradient(270deg, white, rgba(255,255,255,0));
+    }
+
+    .category-chips {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 6px 2px 8px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .category-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-chip {
+      position: relative;
+      border: 1px solid rgba(226, 232, 240, .9);
+      background: #FFFFFF;
+      color: #475569;
+      border-radius: 16px;
+      padding: 10px 13px 10px 12px;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 40px;
+      box-shadow:
+        0 1px 2px rgba(15, 23, 42, .04),
+        0 8px 22px rgba(15, 23, 42, .04);
+      transition:
+        transform .12s ease,
+        box-shadow .18s ease,
+        border-color .18s ease,
+        background .18s ease,
+        color .18s ease;
+    }
+
+    .category-chip::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #CBD5E1;
+      flex: 0 0 auto;
+      transition: background .18s ease, box-shadow .18s ease;
+    }
+
+    .category-chip:hover {
+      transform: translateY(-1px);
+      border-color: rgba(15, 23, 42, .14);
+      box-shadow:
+        0 2px 4px rgba(15, 23, 42, .05),
+        0 12px 28px rgba(15, 23, 42, .08);
+    }
+
+    .category-chip:active {
+      transform: scale(.98);
+    }
+
+    .category-chip.active {
+      background: #0F172A;
+      color: #FFFFFF;
+      border-color: #0F172A;
+      box-shadow:
+        0 8px 22px rgba(15, 23, 42, .22),
+        0 0 0 3px rgba(245, 158, 11, .16);
+    }
+
+    .category-chip.active::before {
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, .22);
+    }
+
     main {
       padding: 18px 16px 120px;
     }
@@ -798,6 +901,37 @@
         gap: 8px;
       }
 
+
+      .category-chips-wrap {
+        margin-top: 8px;
+      }
+
+      .category-chips-wrap::before,
+      .category-chips-wrap::after {
+        width: 16px;
+      }
+
+      .category-chips {
+        gap: 7px;
+        padding: 5px 1px 7px;
+      }
+
+      .category-chip {
+        min-height: 34px;
+        border-radius: 13px;
+        font-size: 11px;
+        padding: 8px 10px;
+        gap: 6px;
+        box-shadow:
+          0 1px 2px rgba(15, 23, 42, .04),
+          0 6px 14px rgba(15, 23, 42, .04);
+      }
+
+      .category-chip::before {
+        width: 6px;
+        height: 6px;
+      }
+
       .featured-strip {
         grid-auto-columns: minmax(128px, 32vw);
         gap: 8px;
@@ -823,7 +957,59 @@
       }
 
 
-      main {
+  
+    .category-chips {
+      max-width: 1100px;
+      margin: 12px auto 0;
+      display: flex;
+      gap: 9px;
+      overflow-x: auto;
+      padding: 2px 2px 6px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .category-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-chip {
+      border: 1px solid rgba(148, 163, 184, .28);
+      background: rgba(248, 250, 252, .92);
+      color: #334155;
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, .05);
+      backdrop-filter: blur(8px);
+      transition:
+        background .18s ease,
+        color .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease,
+        transform .08s ease;
+    }
+
+    .category-chip:hover {
+      border-color: rgba(15, 23, 42, .18);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, .08);
+    }
+
+    .category-chip:active {
+      transform: scale(.97);
+    }
+
+    .category-chip.active {
+      background: linear-gradient(135deg, var(--theme), #020617);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, .20);
+    }
+
+    main {
         padding: 10px 8px 110px;
       }
 
@@ -981,6 +1167,7 @@
         <option value="">All categories</option>
       </select>
     </div>
+    <div class="category-chips-wrap"><div class="category-chips" id="categoryChips"></div></div>
   </section>
 
   <main class="wrap">
@@ -1017,12 +1204,16 @@
 
     let catalog = { settings: {}, categories: [], products: [] };
     let cart = [];
+    const CART_STORAGE_KEY = 'retailCatalogCart_v1';
 
     document.addEventListener('DOMContentLoaded', init);
 
     function init() {
       document.getElementById('search').addEventListener('input', renderProducts);
-      document.getElementById('categoryFilter').addEventListener('change', renderProducts);
+      document.getElementById('categoryFilter').addEventListener('change', () => {
+        updateCategoryChips();
+        renderProducts();
+      });
       loadCatalogJsonpOnly();
     }
 
@@ -1080,6 +1271,8 @@
 
       applySettings(catalog.settings || {});
       populateCategories(catalog.categories || []);
+      populateCategoryChips(catalog.categories || []);
+      restoreCart();
       renderProducts();
       updateCartBar();
     }
@@ -1108,6 +1301,51 @@
         opt.value = cat;
         opt.textContent = cat;
         select.appendChild(opt);
+      });
+    }
+
+    function populateCategoryChips(categories) {
+      const chips = document.getElementById('categoryChips');
+      if (!chips) return;
+
+      chips.innerHTML = '';
+
+      const allButton = document.createElement('button');
+      allButton.className = 'category-chip active';
+      allButton.type = 'button';
+      allButton.textContent = 'All';
+      allButton.dataset.category = '';
+      allButton.onclick = () => setCategoryFilter('');
+      chips.appendChild(allButton);
+
+      (categories || []).forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'category-chip';
+        btn.type = 'button';
+        btn.textContent = cat;
+        btn.dataset.category = cat;
+        btn.onclick = () => setCategoryFilter(cat);
+        chips.appendChild(btn);
+      });
+
+      updateCategoryChips();
+    }
+
+    function setCategoryFilter(category) {
+      const select = document.getElementById('categoryFilter');
+      select.value = category || '';
+      updateCategoryChips();
+      renderProducts();
+    }
+
+    function updateCategoryChips() {
+      const select = document.getElementById('categoryFilter');
+      if (!select) return;
+
+      const selected = select.value || '';
+
+      document.querySelectorAll('.category-chip').forEach(chip => {
+        chip.classList.toggle('active', (chip.dataset.category || '') === selected);
       });
     }
 
@@ -1353,6 +1591,7 @@
       if (existing) existing.qty += qty;
       else cart.push({ id, qty });
 
+      saveCart();
       updateCartBar(true);
 
       const productName = [product.brand, product.productName].filter(Boolean).join(' ');
@@ -1360,6 +1599,37 @@
       showToast('Added to order', `${qty} × ${productName}${optionName && optionName !== 'Default Option' ? ' - ' + optionName : ''}`);
 
       flashAddButton(buttonEl);
+    }
+
+    function saveCart() {
+      try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+      } catch (e) {
+        console.warn('Could not save cart locally', e);
+      }
+    }
+
+    function restoreCart() {
+      try {
+        const saved = localStorage.getItem(CART_STORAGE_KEY);
+        if (!saved) return;
+
+        const parsed = JSON.parse(saved);
+        if (!Array.isArray(parsed)) return;
+
+        const validIds = new Set((catalog.products || []).map(p => String(p.id)));
+
+        cart = parsed
+          .filter(item => validIds.has(String(item.id)))
+          .map(item => ({
+            id: String(item.id),
+            qty: Math.max(1, Number(item.qty || 1))
+          }));
+
+      } catch (e) {
+        console.warn('Could not restore saved cart', e);
+        cart = [];
+      }
     }
 
     function updateCartBar(pulse) {
@@ -1379,6 +1649,7 @@
 
     function clearCart() {
       cart = [];
+      saveCart();
       updateCartBar();
       showToast('Order cleared', 'Your selected items were removed.');
     }
@@ -1450,7 +1721,7 @@
             <div class="drawer-head">
               <div>
                 <h2>Your Order</h2>
-                <div class="drawer-sub">${count} item${count === 1 ? '' : 's'} selected</div>
+                <div class="drawer-sub">${count} item${count === 1 ? '' : 's'} selected · saved on this device</div>
               </div>
               <button class="xbtn" onclick="closeCartDrawer()">×</button>
             </div>
@@ -1485,12 +1756,14 @@
         cart = cart.filter(i => String(i.id) !== String(id));
       }
 
+      saveCart();
       updateCartBar(true);
       renderCartDrawer();
     }
 
     function removeCartItem(id) {
       cart = cart.filter(i => String(i.id) !== String(id));
+      saveCart();
       updateCartBar(true);
       renderCartDrawer();
       showToast('Removed from order', 'Item removed successfully.');
