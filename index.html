@@ -307,6 +307,50 @@
     }
 
 
+
+    .category-section {
+      margin: 22px 0 30px;
+    }
+
+    .category-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 18px 0 12px;
+    }
+
+    .category-divider::after {
+      content: "";
+      height: 1px;
+      background: var(--line);
+      flex: 1;
+    }
+
+    .category-title {
+      margin: 0;
+      font-size: 19px;
+      font-weight: 900;
+      color: var(--theme);
+      letter-spacing: -.02em;
+    }
+
+    .category-count {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      background: #F1F5F9;
+      border: 1px solid var(--line);
+      padding: 5px 8px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
     .featured-section {
       margin-bottom: 18px;
     }
@@ -730,6 +774,30 @@
         font-size: 22px;
       }
 
+
+      .category-section {
+        margin: 16px 0 22px;
+      }
+
+      .category-divider {
+        margin: 14px 0 8px;
+        gap: 8px;
+      }
+
+      .category-title {
+        font-size: 15px;
+      }
+
+      .category-count {
+        font-size: 10px;
+        padding: 4px 6px;
+      }
+
+      .category-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 8px;
+      }
+
       .featured-strip {
         grid-auto-columns: minmax(128px, 32vw);
         gap: 8px;
@@ -925,7 +993,7 @@
     </section>
 
     <div class="stats" id="stats">Loading catalog...</div>
-    <section class="grid" id="productGrid"></section>
+    <section id="productGrid"></section>
     <div class="empty" id="emptyState" style="display:none;">No products found.</div>
   </main>
 
@@ -1102,7 +1170,44 @@
       empty.style.display = groupedProducts.length ? 'none' : 'block';
 
       renderFeaturedProducts(groupedProducts, currency);
-      groupedProducts.forEach(group => grid.appendChild(groupedProductCard(group, currency)));
+
+      const groupedByCategory = groupProductsByCategory(groupedProducts);
+
+      Object.keys(groupedByCategory).forEach(categoryName => {
+        const items = groupedByCategory[categoryName];
+
+        const section = document.createElement('section');
+        section.className = 'category-section';
+
+        section.innerHTML = `
+          <div class="category-divider">
+            <h2 class="category-title">${escapeHtml(categoryName || 'Other Products')}</h2>
+            <span class="category-count">${items.length} product${items.length === 1 ? '' : 's'}</span>
+          </div>
+          <div class="category-grid"></div>
+        `;
+
+        const categoryGrid = section.querySelector('.category-grid');
+        items.forEach(group => categoryGrid.appendChild(groupedProductCard(group, currency)));
+
+        grid.appendChild(section);
+      });
+    }
+
+    function groupProductsByCategory(groupedProducts) {
+      const result = {};
+
+      (groupedProducts || []).forEach(group => {
+        const categoryName = group.category || 'Other Products';
+
+        if (!result[categoryName]) {
+          result[categoryName] = [];
+        }
+
+        result[categoryName].push(group);
+      });
+
+      return result;
     }
 
     function renderFeaturedProducts(groupedProducts, currency) {
