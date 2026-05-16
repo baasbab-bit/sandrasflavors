@@ -416,6 +416,224 @@
 
 
 
+
+    .hero-promos {
+      margin: 16px auto 4px;
+      max-width: 1100px;
+      display: none;
+    }
+
+    .promo-strip {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(280px, 1fr);
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 2px 2px 8px;
+    }
+
+    .promo-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    .promo-card {
+      position: relative;
+      min-height: 132px;
+      border-radius: 22px;
+      overflow: hidden;
+      scroll-snap-align: start;
+      background: linear-gradient(135deg, var(--theme), #020617);
+      color: white;
+      padding: 18px;
+      display: grid;
+      align-content: end;
+      box-shadow: 0 16px 34px rgba(15, 23, 42, .16);
+      isolation: isolate;
+    }
+
+    .promo-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 85% 20%, rgba(245, 158, 11, .34), transparent 32%),
+        linear-gradient(135deg, rgba(0,0,0,.14), rgba(0,0,0,.48));
+      z-index: -1;
+    }
+
+    .promo-card.has-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: var(--promo-img);
+      background-size: cover;
+      background-position: center;
+      opacity: .42;
+      z-index: -2;
+      transform: scale(1.04);
+    }
+
+    .promo-label {
+      width: fit-content;
+      background: rgba(245, 158, 11, .95);
+      color: #111827;
+      font-weight: 950;
+      font-size: 11px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .promo-title {
+      font-size: 22px;
+      font-weight: 950;
+      line-height: 1.05;
+      margin: 0 0 5px;
+      text-shadow: 0 2px 12px rgba(0,0,0,.24);
+    }
+
+    .promo-text {
+      font-size: 13px;
+      color: rgba(255,255,255,.86);
+      line-height: 1.35;
+      max-width: 70%;
+    }
+
+    .card {
+      transform: translateZ(0);
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 34px rgba(15, 23, 42, .11);
+      border-color: rgba(15, 23, 42, .12);
+    }
+
+    .imgbox {
+      cursor: pointer;
+    }
+
+    .imgbox img {
+      transition: transform .24s ease;
+    }
+
+    .card:hover .imgbox img {
+      transform: scale(1.035);
+    }
+
+    .btn {
+      position: relative;
+      overflow: hidden;
+      transition: transform .08s ease, filter .16s ease, box-shadow .16s ease;
+    }
+
+    .btn:hover {
+      filter: brightness(1.05);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, .14);
+    }
+
+    .btn:active {
+      transform: scale(.98);
+    }
+
+    .preview-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .preview-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 18px;
+      object-fit: cover;
+      background: #E5E7EB;
+      border: 1px solid var(--line);
+    }
+
+    .preview-category {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .preview-title {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.1;
+      font-weight: 950;
+    }
+
+    .preview-desc {
+      color: #334155;
+      font-size: 14px;
+      line-height: 1.45;
+      margin: 10px 0 12px;
+    }
+
+    .preview-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .preview-options {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .preview-option-row {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 8px;
+      background: #FFFFFF;
+    }
+
+    .preview-option-row img,
+    .preview-option-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: #E5E7EB;
+    }
+
+    .preview-option-name {
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .preview-option-price {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .fade-in-up {
+      animation: fadeInUp .22s ease-out both;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     .category-section {
       margin: 22px 0 30px;
     }
@@ -883,7 +1101,225 @@
       }
 
 
-      .category-section {
+  
+    .hero-promos {
+      margin: 16px auto 4px;
+      max-width: 1100px;
+      display: none;
+    }
+
+    .promo-strip {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(280px, 1fr);
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 2px 2px 8px;
+    }
+
+    .promo-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    .promo-card {
+      position: relative;
+      min-height: 132px;
+      border-radius: 22px;
+      overflow: hidden;
+      scroll-snap-align: start;
+      background: linear-gradient(135deg, var(--theme), #020617);
+      color: white;
+      padding: 18px;
+      display: grid;
+      align-content: end;
+      box-shadow: 0 16px 34px rgba(15, 23, 42, .16);
+      isolation: isolate;
+    }
+
+    .promo-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 85% 20%, rgba(245, 158, 11, .34), transparent 32%),
+        linear-gradient(135deg, rgba(0,0,0,.14), rgba(0,0,0,.48));
+      z-index: -1;
+    }
+
+    .promo-card.has-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: var(--promo-img);
+      background-size: cover;
+      background-position: center;
+      opacity: .42;
+      z-index: -2;
+      transform: scale(1.04);
+    }
+
+    .promo-label {
+      width: fit-content;
+      background: rgba(245, 158, 11, .95);
+      color: #111827;
+      font-weight: 950;
+      font-size: 11px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .promo-title {
+      font-size: 22px;
+      font-weight: 950;
+      line-height: 1.05;
+      margin: 0 0 5px;
+      text-shadow: 0 2px 12px rgba(0,0,0,.24);
+    }
+
+    .promo-text {
+      font-size: 13px;
+      color: rgba(255,255,255,.86);
+      line-height: 1.35;
+      max-width: 70%;
+    }
+
+    .card {
+      transform: translateZ(0);
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 34px rgba(15, 23, 42, .11);
+      border-color: rgba(15, 23, 42, .12);
+    }
+
+    .imgbox {
+      cursor: pointer;
+    }
+
+    .imgbox img {
+      transition: transform .24s ease;
+    }
+
+    .card:hover .imgbox img {
+      transform: scale(1.035);
+    }
+
+    .btn {
+      position: relative;
+      overflow: hidden;
+      transition: transform .08s ease, filter .16s ease, box-shadow .16s ease;
+    }
+
+    .btn:hover {
+      filter: brightness(1.05);
+      box-shadow: 0 10px 22px rgba(15, 23, 42, .14);
+    }
+
+    .btn:active {
+      transform: scale(.98);
+    }
+
+    .preview-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .preview-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 18px;
+      object-fit: cover;
+      background: #E5E7EB;
+      border: 1px solid var(--line);
+    }
+
+    .preview-category {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .preview-title {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.1;
+      font-weight: 950;
+    }
+
+    .preview-desc {
+      color: #334155;
+      font-size: 14px;
+      line-height: 1.45;
+      margin: 10px 0 12px;
+    }
+
+    .preview-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .preview-options {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .preview-option-row {
+      display: grid;
+      grid-template-columns: 48px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 8px;
+      background: #FFFFFF;
+    }
+
+    .preview-option-row img,
+    .preview-option-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: #E5E7EB;
+    }
+
+    .preview-option-name {
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .preview-option-price {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .fade-in-up {
+      animation: fadeInUp .22s ease-out both;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .category-section {
         margin: 16px 0 22px;
       }
 
@@ -1170,6 +1606,11 @@
     </div>
   </header>
 
+
+  <section class="hero-promos wrap" id="heroPromos">
+    <div class="promo-strip" id="promoStrip"></div>
+  </section>
+
   <section class="toolbar">
     <div class="toolbar-grid toolbar-grid-single">
       <input id="search" type="search" placeholder="Search product, brand, option..." />
@@ -1210,9 +1651,10 @@
   <div id="checkoutModal" style="display:none;"></div>
   <div id="toastHost" class="toast-host"></div>
   <div id="cartDrawer" style="display:none;"></div>
+  <div id="previewModal" style="display:none;"></div>
 
   <script>
-    const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbwouM8ynbtc0lmNXCpQNT-RGAKAmZo5tAhO1aKam4-KkJC7ba1WnSJWtu-m_UMp_PtS/exec';
+    const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbwonIrmVNHrytc6SDZTgaZEVrHBZhvA0Z8qsKPhWskh78ERlCRX0txkVYTxuTse602u/exec';
 
     let catalog = { settings: {}, categories: [], products: [] };
     let cart = [];
@@ -1285,6 +1727,7 @@
       populateCategories(catalog.categories || []);
       populateCategoryChips(catalog.categories || []);
       restoreCart();
+      renderPromos();
       renderProducts();
       updateCartBar();
     }
@@ -1512,10 +1955,10 @@
 
       card.innerHTML = `
         ${ribbons}
-        <div class="imgbox">${img}</div>
+        <div class="imgbox" onclick="openProductPreview('${escapeJs(group.key)}')">${img}</div>
         <div class="content">
           <div class="category">${escapeHtml(group.category || '')}</div>
-          <div class="title">${escapeHtml(title)}</div>
+          <div class="title" onclick="openProductPreview('${escapeJs(group.key)}')" style="cursor:pointer;">${escapeHtml(title)}</div>
           <div class="desc">${escapeHtml(group.description || '')}</div>
           <div class="product-actions">
             <div class="row price-row">
@@ -1530,6 +1973,123 @@
       `;
 
       return card;
+    }
+
+    function renderPromos() {
+      const section = document.getElementById('heroPromos');
+      const strip = document.getElementById('promoStrip');
+      if (!section || !strip) return;
+
+      const promos = Array.isArray(catalog.promos) ? catalog.promos.filter(p => truthy(p.active)) : [];
+
+      if (!promos.length) {
+        section.style.display = 'none';
+        strip.innerHTML = '';
+        return;
+      }
+
+      section.style.display = 'block';
+      strip.innerHTML = '';
+
+      promos.slice(0, 8).forEach(promo => {
+        const card = document.createElement('article');
+        card.className = 'promo-card fade-in-up' + (promo.imageUrl ? ' has-image' : '');
+
+        if (promo.imageUrl) {
+          card.style.setProperty('--promo-img', `url("${promo.imageUrl}")`);
+        }
+
+        card.innerHTML = `
+          ${promo.label ? `<div class="promo-label">${escapeHtml(promo.label)}</div>` : ''}
+          <h2 class="promo-title">${escapeHtml(promo.title || '')}</h2>
+          ${promo.text ? `<div class="promo-text">${escapeHtml(promo.text)}</div>` : ''}
+        `;
+
+        if (promo.category) {
+          card.style.cursor = 'pointer';
+          card.onclick = () => setCategoryFilter(promo.category);
+        }
+
+        strip.appendChild(card);
+      });
+    }
+
+    function openProductPreview(groupKey) {
+      const groupedProducts = getGroupedProducts(catalog.products || []);
+      const group = groupedProducts.find(g => g.key === groupKey);
+      if (!group) return;
+
+      const modal = document.getElementById('previewModal');
+      const currency = catalog.settings.currency || 'SRD';
+      const title = [group.brand, group.productName].filter(Boolean).join(' ');
+      const firstImage = group.imageUrl || (group.options.find(o => o.imageUrl) || {}).imageUrl || '';
+
+      modal.style.display = 'block';
+      modal.innerHTML = `
+        <div class="modal-overlay" onclick="closeProductPreviewOnBackdrop(event)">
+          <div class="modal-box fade-in-up">
+            <div class="modal-head">
+              <div>
+                <div class="preview-category">${escapeHtml(group.category || '')}</div>
+                <h2 class="preview-title">${escapeHtml(title)}</h2>
+              </div>
+              <button class="xbtn" onclick="closeProductPreview()">×</button>
+            </div>
+
+            <div class="preview-layout">
+              ${
+                firstImage
+                  ? `<img class="preview-image" src="${escapeAttr(firstImage)}" alt="${escapeAttr(title)}" onerror="this.outerHTML='<div class=&quot;preview-image noimg&quot;>Image unavailable</div>'" />`
+                  : '<div class="preview-image noimg">No image</div>'
+              }
+
+              <div>
+                <div class="preview-meta">
+                  ${getRibbonHtml(group)}
+                  <span class="badge">${group.options.length} option${group.options.length === 1 ? '' : 's'}</span>
+                  <span class="badge">${formatMoney(group.retailPrice, currency)}</span>
+                </div>
+
+                ${group.description ? `<div class="preview-desc">${escapeHtml(group.description)}</div>` : ''}
+
+                <button class="btn" style="width:100%; margin-bottom:12px;" onclick="closeProductPreview(); openOptionModal('${escapeJs(group.key)}')">
+                  Order Now
+                </button>
+
+                <div class="preview-options">
+                  ${group.options.slice(0, 6).map(option => {
+                    const optionName = getFlavorName(option);
+                    const img = option.imageUrl
+                      ? `<img src="${escapeAttr(option.imageUrl)}" alt="${escapeAttr(optionName)}" onerror="this.outerHTML='<div class=&quot;preview-option-img noimg&quot;>No img</div>'" />`
+                      : '<div class="preview-option-img noimg">No img</div>';
+
+                    return `
+                      <div class="preview-option-row">
+                        ${img}
+                        <div>
+                          <div class="preview-option-name">${escapeHtml(optionName)}</div>
+                          <div class="preview-option-price">${formatMoney(option.retailPrice, currency)} · ${escapeHtml(option.stockStatus || 'Available')}</div>
+                        </div>
+                        <button class="btn" onclick="closeProductPreview(); openOptionModal('${escapeJs(group.key)}')">Select</button>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function closeProductPreviewOnBackdrop(event) {
+      if (event.target.classList.contains('modal-overlay')) closeProductPreview();
+    }
+
+    function closeProductPreview() {
+      const modal = document.getElementById('previewModal');
+      modal.style.display = 'none';
+      modal.innerHTML = '';
     }
 
     function openOptionModal(groupKey) {
