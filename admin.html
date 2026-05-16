@@ -141,7 +141,7 @@
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 920px;
+      min-width: 1180px;
     }
 
     th, td {
@@ -165,6 +165,320 @@
 
     td {
       background: rgba(15, 23, 42, .35);
+    }
+
+
+
+
+    .mobile-orders {
+      display: none;
+    }
+
+    .mobile-order-card {
+      background: rgba(255,255,255,.07);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: 0 16px 38px rgba(0,0,0,.18);
+      margin-bottom: 12px;
+    }
+
+    .mobile-card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .mobile-order-id {
+      font-size: 16px;
+      font-weight: 950;
+      color: #FFFFFF;
+    }
+
+    .mobile-customer {
+      font-size: 14px;
+      font-weight: 900;
+      margin-top: 3px;
+    }
+
+    .mobile-phone {
+      color: #86EFAC;
+      font-size: 13px;
+      font-weight: 900;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 3px;
+    }
+
+    .mobile-total {
+      text-align: right;
+      font-size: 16px;
+      font-weight: 950;
+      color: #FFFFFF;
+    }
+
+    .mobile-date {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+      text-align: right;
+    }
+
+    .mobile-items {
+      background: rgba(15, 23, 42, .64);
+      border: 1px solid rgba(148, 163, 184, .16);
+      border-radius: 14px;
+      padding: 10px;
+      color: #E5E7EB;
+      font-size: 12px;
+      line-height: 1.4;
+      white-space: pre-line;
+      margin: 10px 0;
+    }
+
+    .mobile-card-status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .mobile-workflow {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .mobile-workflow .workflow-btn {
+      min-height: 42px;
+      font-size: 12px;
+    }
+
+    .mobile-bottom-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .mobile-bottom-actions .small-btn {
+      min-height: 40px;
+      font-size: 12px;
+    }
+
+    .mobile-status-chips {
+      display: none;
+      gap: 7px;
+      overflow-x: auto;
+      padding: 8px 0 2px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .mobile-status-chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .status-chip {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.08);
+      color: #CBD5E1;
+      border-radius: 999px;
+      padding: 8px 11px;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .status-chip.active {
+      background: var(--accent);
+      color: #111827;
+      border-color: var(--accent);
+    }
+
+    .mobile-refresh-fab {
+      display: none;
+      position: fixed;
+      right: 14px;
+      bottom: 18px;
+      width: 54px;
+      height: 54px;
+      border-radius: 999px;
+      border: none;
+      background: var(--accent);
+      color: #111827;
+      font-size: 22px;
+      font-weight: 950;
+      z-index: 60;
+      box-shadow: 0 14px 30px rgba(0,0,0,.32);
+      cursor: pointer;
+    }
+
+    @media (max-width: 760px) {
+      header {
+        padding: 16px 12px;
+      }
+
+      main {
+        padding: 12px 10px 90px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .refresh-btn {
+        display: none;
+      }
+
+      .cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .metric {
+        padding: 12px;
+        border-radius: 16px;
+      }
+
+      .metric-label {
+        font-size: 10px;
+      }
+
+      .metric-value {
+        font-size: 20px;
+      }
+
+      .panel {
+        border-radius: 18px;
+        margin-bottom: 10px;
+      }
+
+      .panel-head {
+        position: sticky;
+        top: 74px;
+        z-index: 20;
+        grid-template-columns: 1fr;
+        padding: 10px;
+        gap: 8px;
+      }
+
+      .mobile-status-chips {
+        display: flex;
+      }
+
+      .table-wrap {
+        display: none;
+      }
+
+      .mobile-orders {
+        display: block;
+      }
+
+      .mobile-refresh-fab {
+        display: block;
+      }
+
+      .modal-box {
+        width: 100%;
+        max-height: 92vh;
+        border-radius: 18px;
+      }
+    }
+
+    .workflow-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      min-width: 220px;
+    }
+
+    .workflow-btn {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.92);
+      color: #111827;
+      font-size: 11px;
+      font-weight: 950;
+      padding: 7px 8px;
+      border-radius: 10px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform .08s ease, filter .15s ease;
+    }
+
+    .workflow-btn:hover { filter: brightness(1.05); }
+    .workflow-btn:active { transform: scale(.97); }
+    .workflow-btn.contact { background: #DBEAFE; color: #1D4ED8; }
+    .workflow-btn.preparing { background: #FEF3C7; color: #92400E; }
+    .workflow-btn.ready { background: #DCFCE7; color: #166534; }
+    .workflow-btn.delivered { background: #D1FAE5; color: #065F46; }
+
+    .template-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .template-btn {
+      border: 1px solid var(--line);
+      background: rgba(15, 23, 42, .9);
+      color: white;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 7px 9px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .saving-flash {
+      animation: savingFlash .7s ease;
+    }
+
+    @keyframes savingFlash {
+      0% { outline: 0 solid rgba(245, 158, 11, 0); }
+      40% { outline: 3px solid rgba(245, 158, 11, .45); }
+      100% { outline: 0 solid rgba(245, 158, 11, 0); }
+    }
+
+    .phone-link {
+      color: #86EFAC;
+      font-weight: 900;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .phone-link:hover {
+      text-decoration: underline;
+    }
+
+    .items-preview {
+      max-width: 320px;
+      color: #E5E7EB;
+      font-size: 12px;
+      line-height: 1.35;
+      white-space: pre-line;
+    }
+
+    .items-more {
+      display: inline-block;
+      margin-top: 4px;
+      color: #FCD34D;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .new-row td {
+      background: rgba(37, 99, 235, .13);
+    }
+
+    .high-value td {
+      box-shadow: inset 3px 0 0 var(--accent);
     }
 
     .order-id {
@@ -388,6 +702,15 @@
           <option value="7">Last 7 days</option>
           <option value="30">Last 30 days</option>
         </select>
+
+        <div class="mobile-status-chips" id="mobileStatusChips">
+          <button class="status-chip active" data-status="" onclick="setMobileStatusFilter('')">All</button>
+          <button class="status-chip" data-status="WhatsApp Draft Created" onclick="setMobileStatusFilter('WhatsApp Draft Created')">Draft</button>
+          <button class="status-chip" data-status="New" onclick="setMobileStatusFilter('New')">New</button>
+          <button class="status-chip" data-status="Preparing" onclick="setMobileStatusFilter('Preparing')">Preparing</button>
+          <button class="status-chip" data-status="Ready" onclick="setMobileStatusFilter('Ready')">Ready</button>
+          <button class="status-chip" data-status="Delivered" onclick="setMobileStatusFilter('Delivered')">Delivered</button>
+        </div>
       </div>
 
       <div class="table-wrap">
@@ -396,9 +719,12 @@
             <tr>
               <th>Order</th>
               <th>Customer</th>
+              <th>Phone</th>
+              <th>Items</th>
               <th>Date</th>
               <th>Total</th>
               <th>Status</th>
+              <th>Workflow</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -407,6 +733,8 @@
         <div class="empty" id="emptyState" style="display:none;">No orders found.</div>
       </div>
     </section>
+
+    <section class="mobile-orders" id="mobileOrders"></section>
   </main>
 
   <div class="modal" id="orderModal">
@@ -461,6 +789,16 @@
           <textarea id="modalNotes" rows="4" placeholder="Internal notes..."></textarea>
         </label>
 
+        <div>
+          <div class="detail-label" style="margin-bottom:6px;">WhatsApp Templates</div>
+          <div class="template-actions">
+            <button class="template-btn" onclick="sendTemplateCurrent('received')">Received</button>
+            <button class="template-btn" onclick="sendTemplateCurrent('preparing')">Preparing</button>
+            <button class="template-btn" onclick="sendTemplateCurrent('ready')">Ready</button>
+            <button class="template-btn" onclick="sendTemplateCurrent('delivered')">Delivered</button>
+          </div>
+        </div>
+
         <div class="modal-actions">
           <button class="save" onclick="saveOrderChanges()">Save Changes</button>
           <button class="wa" onclick="whatsappCurrentCustomer()">WhatsApp Customer</button>
@@ -477,7 +815,10 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('searchInput').addEventListener('input', renderOrders);
-      document.getElementById('statusFilter').addEventListener('change', renderOrders);
+      document.getElementById('statusFilter').addEventListener('change', () => {
+        updateMobileStatusChips();
+        renderOrders();
+      });
       document.getElementById('dateFilter').addEventListener('change', renderOrders);
       loadDashboard();
     });
@@ -537,6 +878,7 @@
 
     function renderOrders() {
       const body = document.getElementById('ordersBody');
+      const mobile = document.getElementById('mobileOrders');
       const empty = document.getElementById('emptyState');
       const search = document.getElementById('searchInput').value.trim().toLowerCase();
       const status = document.getElementById('statusFilter').value;
@@ -560,37 +902,170 @@
       });
 
       body.innerHTML = '';
+      if (mobile) mobile.innerHTML = '';
       empty.style.display = filtered.length ? 'none' : 'block';
 
       filtered.forEach(order => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>
-            <div class="order-id">${escapeHtml(order.orderId)}</div>
-            <div class="muted">${escapeHtml(order.source || '')}</div>
-          </td>
-          <td>
-            <strong>${escapeHtml(order.customerName)}</strong>
-            <div class="muted">${escapeHtml(order.customerPhone || '')}</div>
-          </td>
-          <td>
-            ${formatDate(order.timestamp)}
-          </td>
-          <td>
-            <strong>${formatMoney(order.total, order.currency || 'SRD')}</strong>
-          </td>
-          <td>
-            <span class="status ${statusClass(order.status)}">${escapeHtml(order.status || '')}</span>
-          </td>
-          <td>
-            <div class="actions">
-              <button class="small-btn" onclick="openOrder('${escapeJs(order.orderId)}')">Open</button>
-              <button class="small-btn wa" onclick="whatsappCustomer('${escapeJs(order.customerPhone)}', '${escapeJs(order.customerName)}')">WhatsApp</button>
-            </div>
-          </td>
-        `;
-        body.appendChild(tr);
+        renderDesktopRow(body, order);
+        renderMobileCard(mobile, order);
       });
+    }
+
+    function renderDesktopRow(body, order) {
+      const tr = document.createElement('tr');
+
+      const cleanPhone = String(order.customerPhone || '').replace(/\D/g, '');
+      const itemPreview = buildItemsPreview(order.items);
+      const rowStatus = String(order.status || '');
+      const isNewish = ['WhatsApp Draft Created', 'New'].includes(rowStatus);
+      const isHighValue = Number(order.total || 0) >= 2000;
+
+      if (isNewish) tr.classList.add('new-row');
+      if (isHighValue) tr.classList.add('high-value');
+
+      tr.innerHTML = `
+        <td>
+          <div class="order-id">${escapeHtml(order.orderId)}</div>
+          <div class="muted">${escapeHtml(order.source || '')}</div>
+        </td>
+        <td>
+          <strong>${escapeHtml(order.customerName)}</strong>
+          <div class="muted">${escapeHtml(order.customerAddress || '')}</div>
+        </td>
+        <td>
+          ${cleanPhone
+            ? `<a class="phone-link" href="https://wa.me/${cleanPhone}" target="_blank">${escapeHtml(order.customerPhone)}</a>`
+            : '<span class="muted">No phone</span>'
+          }
+        </td>
+        <td>
+          <div class="items-preview">${itemPreview.html}</div>
+          ${itemPreview.more ? `<span class="items-more">${itemPreview.more}</span>` : ''}
+        </td>
+        <td>
+          ${formatDate(order.timestamp)}
+        </td>
+        <td>
+          <strong>${formatMoney(order.total, order.currency || 'SRD')}</strong>
+        </td>
+        <td>
+          <span class="status ${statusClass(order.status)}">${escapeHtml(order.status || '')}</span>
+        </td>
+        <td>
+          <div class="workflow-actions">
+            <button class="workflow-btn contact" onclick="quickWorkflow('${escapeJs(order.orderId)}', 'Contacted', 'received')">Contacted</button>
+            <button class="workflow-btn preparing" onclick="quickWorkflow('${escapeJs(order.orderId)}', 'Preparing', 'preparing')">Preparing</button>
+            <button class="workflow-btn ready" onclick="quickWorkflow('${escapeJs(order.orderId)}', 'Ready', 'ready')">Ready</button>
+            <button class="workflow-btn delivered" onclick="quickWorkflow('${escapeJs(order.orderId)}', 'Delivered', 'delivered')">Delivered</button>
+          </div>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="small-btn" onclick="openOrder('${escapeJs(order.orderId)}')">Open</button>
+            <button class="small-btn wa" onclick="sendTemplate('${escapeJs(order.orderId)}', 'received')">WhatsApp</button>
+          </div>
+        </td>
+      `;
+
+      body.appendChild(tr);
+    }
+
+    function renderMobileCard(container, order) {
+      if (!container) return;
+
+      const cleanPhone = String(order.customerPhone || '').replace(/\D/g, '');
+      const itemPreview = buildItemsPreview(order.items);
+      const rowStatus = String(order.status || '');
+      const isNewish = ['WhatsApp Draft Created', 'New'].includes(rowStatus);
+      const isHighValue = Number(order.total || 0) >= 2000;
+
+      const card = document.createElement('article');
+      card.className = 'mobile-order-card';
+      if (isNewish) card.classList.add('new-row');
+      if (isHighValue) card.classList.add('high-value');
+
+      card.innerHTML = `
+        <div class="mobile-card-top">
+          <div>
+            <div class="mobile-order-id">${escapeHtml(order.orderId)}</div>
+            <div class="mobile-customer">${escapeHtml(order.customerName || '')}</div>
+            ${cleanPhone
+              ? `<a class="mobile-phone" href="https://wa.me/${cleanPhone}" target="_blank">${escapeHtml(order.customerPhone)}</a>`
+              : '<div class="muted">No phone</div>'
+            }
+          </div>
+          <div>
+            <div class="mobile-total">${formatMoney(order.total, order.currency || 'SRD')}</div>
+            <div class="mobile-date">${formatDate(order.timestamp)}</div>
+          </div>
+        </div>
+
+        <div class="mobile-items">${itemPreview.html}${itemPreview.more ? `\n${itemPreview.more}` : ''}</div>
+
+        <div class="mobile-card-status-row">
+          <span class="status ${statusClass(order.status)}">${escapeHtml(order.status || '')}</span>
+        </div>
+
+        <div class="mobile-workflow">
+          <button class="workflow-btn contact" onclick="quickWorkflow('${escapeJs(order.orderId)}', 'Contacted', 'received')">Contacted</button>
+          <button class="workflow-btn preparing" onclick="quickWorkflow('${escapeJs(order.orderId)}', 'Preparing', 'preparing')">Preparing</button>
+          <button class="workflow-btn ready" onclick="quickWorkflow('${escapeJs(order.orderId)}', 'Ready', 'ready')">Ready</button>
+          <button class="workflow-btn delivered" onclick="quickWorkflow('${escapeJs(order.orderId)}', 'Delivered', 'delivered')">Delivered</button>
+        </div>
+
+        <div class="mobile-bottom-actions">
+          <button class="small-btn" onclick="openOrder('${escapeJs(order.orderId)}')">Open Details</button>
+          <button class="small-btn wa" onclick="sendTemplate('${escapeJs(order.orderId)}', 'received')">WhatsApp</button>
+        </div>
+      `;
+
+      container.appendChild(card);
+    }
+
+    function setMobileStatusFilter(status) {
+      document.getElementById('statusFilter').value = status || '';
+      updateMobileStatusChips();
+      renderOrders();
+    }
+
+    function updateMobileStatusChips() {
+      const selected = document.getElementById('statusFilter').value || '';
+      document.querySelectorAll('.status-chip').forEach(chip => {
+        chip.classList.toggle('active', (chip.dataset.status || '') === selected);
+      });
+    }
+
+    function buildItemsPreview(itemsText) {
+      const raw = String(itemsText || '').trim();
+
+      if (!raw) {
+        return {
+          html: '<span class="muted">No items recorded</span>',
+          more: ''
+        };
+      }
+
+      const lines = raw
+        .split(/\n+/)
+        .map(line => line.trim())
+        .filter(Boolean);
+
+      const previewLines = lines.slice(0, 3).map(line => {
+        let clean = line
+          .replace(/\s*\|\s*/g, ' • ')
+          .replace(/Price:/gi, '@')
+          .replace(/Subtotal:/gi, 'Sub:')
+          .replace(/Qty:/gi, 'Qty:');
+
+        return escapeHtml(clean);
+      });
+
+      const moreCount = lines.length - previewLines.length;
+
+      return {
+        html: previewLines.join('\n'),
+        more: moreCount > 0 ? `+${moreCount} more item${moreCount === 1 ? '' : 's'}` : ''
+      };
     }
 
     function matchesDateFilter(timestamp, filter) {
@@ -657,6 +1132,98 @@
       closeModal();
     }
 
+    async function quickWorkflow(orderId, newStatus, templateType) {
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+
+      const response = await apiCall('adminUpdateOrder', {
+        orderId,
+        status: newStatus,
+        notes: order.notes || ''
+      });
+
+      if (!response || !response.ok) {
+        alert(response && response.error ? response.error : 'Could not update order.');
+        return;
+      }
+
+      order.status = newStatus;
+      renderOrders();
+
+      const panel = document.querySelector('.panel');
+      if (panel) {
+        panel.classList.remove('saving-flash');
+        void panel.offsetWidth;
+        panel.classList.add('saving-flash');
+      }
+
+      sendTemplate(orderId, templateType);
+    }
+
+    function sendTemplateCurrent(type) {
+      if (!currentOrder) return;
+      sendTemplate(currentOrder.orderId, type);
+    }
+
+    function sendTemplate(orderId, type) {
+      const order = orders.find(o => o.orderId === orderId);
+      if (!order) return;
+
+      const clean = String(order.customerPhone || '').replace(/\D/g, '');
+
+      if (!clean) {
+        alert('No phone number available.');
+        return;
+      }
+
+      const message = buildTemplateMessage(order, type);
+      window.open(`https://wa.me/${clean}?text=${encodeURIComponent(message)}`, '_blank');
+    }
+
+    function buildTemplateMessage(order, type) {
+      const name = order.customerName || '';
+      const orderId = order.orderId || '';
+      const total = formatMoney(order.total, order.currency || 'SRD');
+
+      const templates = {
+        received:
+`Hi ${name},
+
+We received your order ${orderId}.
+We will review it and get back to you shortly.
+
+Estimated total: ${total}
+
+Thank you.`,
+
+        preparing:
+`Hi ${name},
+
+Your order ${orderId} is now being prepared.
+
+We will let you know once it is ready.`,
+
+        ready:
+`Hi ${name},
+
+Your order ${orderId} is ready.
+
+Please let us know if you will pick it up or if delivery is needed.
+
+Total: ${total}`,
+
+        delivered:
+`Hi ${name},
+
+Thank you for your order ${orderId}.
+We appreciate your purchase.
+
+Hope to serve you again soon.`
+      };
+
+      return templates[type] || templates.received;
+    }
+
     function whatsappCurrentCustomer() {
       if (!currentOrder) return;
       whatsappCustomer(currentOrder.customerPhone, currentOrder.customerName);
@@ -669,7 +1236,9 @@
         return;
       }
 
-      const msg = `Hi ${name || ''}, regarding your order.`;
+      const msg = currentOrder && currentOrder.orderId
+        ? `Hi ${name || ''}, regarding your order ${currentOrder.orderId}.`
+        : `Hi ${name || ''}, regarding your order.`;
       window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank');
     }
 
