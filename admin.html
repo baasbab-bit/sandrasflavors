@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wholesaler Dashboard</title>
+  <style>
+    :root {
+      --bg: #0B1120;
+      --panel: #111827;
+      --panel2: #0F172A;
+      --card: #FFFFFF;
+      --text: #E5E7EB;
+      --muted: #94A3B8;
+      --line: rgba(148, 163, 184, .22);
+      --accent: #F59E0B;
+      --green: #16A34A;
+      --red: #DC2626;
+      --blue: #2563EB;
+      --purple: #7C3AED;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(245, 158, 11, .12), transparent 32%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      padding: 22px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(15, 23, 42, .78);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.1;
+    }
+
+    .sub {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .refresh-btn {
+      border: 1px solid var(--line);
+      background: var(--accent);
+      color: #111827;
+      font-weight: 900;
+      padding: 11px 14px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    main {
+      padding: 18px 16px 80px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric {
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 15px;
+      box-shadow: 0 14px 30px rgba(0,0,0,.16);
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .metric-value {
+      font-size: 24px;
+      font-weight: 950;
+      margin-top: 7px;
+    }
+
+    .panel {
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 18px 50px rgba(0,0,0,.18);
+    }
+
+    .panel-head {
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr 190px 170px;
+      gap: 10px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(15, 23, 42, .58);
+    }
+
+    input, select, button, textarea {
+      font: inherit;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      padding: 11px;
+      background: #FFFFFF;
+      color: #111827;
+    }
+
+    .table-wrap {
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 920px;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: middle;
+      font-size: 13px;
+    }
+
+    th {
+      color: var(--muted);
+      background: rgba(15, 23, 42, .8);
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    td {
+      background: rgba(15, 23, 42, .35);
+    }
+
+    .order-id {
+      font-weight: 950;
+      color: white;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 6px 9px;
+      font-size: 12px;
+      font-weight: 900;
+      background: rgba(148, 163, 184, .16);
+      color: #CBD5E1;
+      white-space: nowrap;
+    }
+
+    .status.New,
+    .status.WhatsApp { background: rgba(37, 99, 235, .18); color: #93C5FD; }
+    .status.Contacted { background: rgba(124, 58, 237, .20); color: #C4B5FD; }
+    .status.Preparing { background: rgba(245, 158, 11, .20); color: #FCD34D; }
+    .status.Ready { background: rgba(22, 163, 74, .18); color: #86EFAC; }
+    .status.Delivered { background: rgba(34, 197, 94, .24); color: #BBF7D0; }
+    .status.Cancelled { background: rgba(220, 38, 38, .20); color: #FCA5A5; }
+
+    .actions {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .small-btn {
+      border: 1px solid var(--line);
+      background: #F8FAFC;
+      color: #111827;
+      font-size: 12px;
+      font-weight: 900;
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .wa {
+      background: #16A34A;
+      color: white;
+      border-color: #16A34A;
+    }
+
+    .empty {
+      padding: 40px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.66);
+      z-index: 100;
+      padding: 16px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-box {
+      width: min(96vw, 760px);
+      max-height: 88vh;
+      overflow: auto;
+      background: white;
+      color: #111827;
+      border-radius: 22px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.35);
+    }
+
+    .modal-head {
+      padding: 16px;
+      border-bottom: 1px solid #E2E8F0;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 950;
+    }
+
+    .x {
+      border: none;
+      background: #F1F5F9;
+      padding: 8px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 950;
+    }
+
+    .modal-body {
+      padding: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .detail-card {
+      border: 1px solid #E2E8F0;
+      border-radius: 16px;
+      padding: 12px;
+      background: #F8FAFC;
+    }
+
+    .detail-label {
+      color: #64748B;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .detail-value {
+      margin-top: 4px;
+      font-weight: 800;
+      white-space: pre-wrap;
+    }
+
+    .items-box {
+      white-space: pre-wrap;
+      background: #0F172A;
+      color: #E5E7EB;
+      border-radius: 16px;
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .save {
+      background: #111827;
+      color: white;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    @media (max-width: 760px) {
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .panel-head { grid-template-columns: 1fr; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .modal-actions { grid-template-columns: 1fr; }
+      h1 { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap topbar">
+      <div>
+        <h1>Wholesaler Dashboard</h1>
+        <div class="sub">Orders, customer follow-up, and fulfillment tracking</div>
+      </div>
+      <button class="refresh-btn" onclick="loadDashboard()">Refresh</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="cards">
+      <div class="metric">
+        <div class="metric-label">Orders Today</div>
+        <div class="metric-value" id="ordersToday">0</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Revenue Today</div>
+        <div class="metric-value" id="revenueToday">SRD 0</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Pending Orders</div>
+        <div class="metric-value" id="pendingOrders">0</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Total Orders</div>
+        <div class="metric-value" id="totalOrders">0</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <input id="searchInput" type="search" placeholder="Search order, customer, phone, items..." />
+        <select id="statusFilter">
+          <option value="">All statuses</option>
+          <option>WhatsApp Draft Created</option>
+          <option>New</option>
+          <option>Contacted</option>
+          <option>Preparing</option>
+          <option>Ready</option>
+          <option>Delivered</option>
+          <option>Cancelled</option>
+        </select>
+        <select id="dateFilter">
+          <option value="">All dates</option>
+          <option value="today">Today</option>
+          <option value="7">Last 7 days</option>
+          <option value="30">Last 30 days</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+        <div class="empty" id="emptyState" style="display:none;">No orders found.</div>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="orderModal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title" id="modalTitle">Order</div>
+          <div class="muted" id="modalSubtitle"></div>
+        </div>
+        <button class="x" onclick="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-card">
+            <div class="detail-label">Customer</div>
+            <div class="detail-value" id="detailCustomer"></div>
+          </div>
+          <div class="detail-card">
+            <div class="detail-label">Contact</div>
+            <div class="detail-value" id="detailContact"></div>
+          </div>
+          <div class="detail-card">
+            <div class="detail-label">Address</div>
+            <div class="detail-value" id="detailAddress"></div>
+          </div>
+          <div class="detail-card">
+            <div class="detail-label">Total</div>
+            <div class="detail-value" id="detailTotal"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="detail-label" style="margin-bottom:6px;">Items</div>
+          <div class="items-box" id="detailItems"></div>
+        </div>
+
+        <label>
+          <div class="detail-label" style="margin-bottom:6px;">Status</div>
+          <select id="modalStatus">
+            <option>WhatsApp Draft Created</option>
+            <option>New</option>
+            <option>Contacted</option>
+            <option>Preparing</option>
+            <option>Ready</option>
+            <option>Delivered</option>
+            <option>Cancelled</option>
+          </select>
+        </label>
+
+        <label>
+          <div class="detail-label" style="margin-bottom:6px;">Notes</div>
+          <textarea id="modalNotes" rows="4" placeholder="Internal notes..."></textarea>
+        </label>
+
+        <div class="modal-actions">
+          <button class="save" onclick="saveOrderChanges()">Save Changes</button>
+          <button class="wa" onclick="whatsappCurrentCustomer()">WhatsApp Customer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyDY524L-VT8YrKYTVs1EpvHW24MVzz9I4p0lUOxamhr-QYI2qK5IRmNj2MPnsrGLo/exec';
+
+    let orders = [];
+    let currentOrder = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('searchInput').addEventListener('input', renderOrders);
+      document.getElementById('statusFilter').addEventListener('change', renderOrders);
+      document.getElementById('dateFilter').addEventListener('change', renderOrders);
+      loadDashboard();
+    });
+
+    function apiCall(action, params = {}) {
+      return new Promise(resolve => {
+        const callbackName = 'cb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+        const script = document.createElement('script');
+        const query = new URLSearchParams({
+          action,
+          callback: callbackName,
+          ...params,
+          cacheBust: Date.now()
+        });
+
+        window[callbackName] = function(response) {
+          try { delete window[callbackName]; } catch (e) {}
+          try { script.remove(); } catch (e) {}
+          resolve(response);
+        };
+
+        script.onerror = function() {
+          try { delete window[callbackName]; } catch (e) {}
+          resolve({ ok: false, error: 'Could not connect to API.' });
+        };
+
+        script.src = API_URL + '?' + query.toString();
+        document.body.appendChild(script);
+      });
+    }
+
+    async function loadDashboard() {
+      if (API_URL.includes('PASTE_YOUR')) {
+        alert('Paste your Apps Script /exec URL inside admin.html first.');
+        return;
+      }
+
+      const [summary, orderResp] = await Promise.all([
+        apiCall('adminSummary'),
+        apiCall('adminOrders')
+      ]);
+
+      if (summary && summary.ok) {
+        document.getElementById('ordersToday').textContent = summary.ordersToday || 0;
+        document.getElementById('revenueToday').textContent = formatMoney(summary.revenueToday || 0, 'SRD');
+        document.getElementById('pendingOrders').textContent = summary.pendingOrders || 0;
+        document.getElementById('totalOrders').textContent = summary.totalOrders || 0;
+      }
+
+      if (orderResp && orderResp.ok) {
+        orders = orderResp.orders || [];
+        renderOrders();
+      } else {
+        alert(orderResp && orderResp.error ? orderResp.error : 'Could not load orders.');
+      }
+    }
+
+    function renderOrders() {
+      const body = document.getElementById('ordersBody');
+      const empty = document.getElementById('emptyState');
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const status = document.getElementById('statusFilter').value;
+      const dateFilter = document.getElementById('dateFilter').value;
+
+      const filtered = orders.filter(order => {
+        const haystack = [
+          order.orderId,
+          order.customerName,
+          order.customerPhone,
+          order.customerAddress,
+          order.items,
+          order.status
+        ].join(' ').toLowerCase();
+
+        if (search && !haystack.includes(search)) return false;
+        if (status && order.status !== status) return false;
+        if (dateFilter && !matchesDateFilter(order.timestamp, dateFilter)) return false;
+
+        return true;
+      });
+
+      body.innerHTML = '';
+      empty.style.display = filtered.length ? 'none' : 'block';
+
+      filtered.forEach(order => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div class="order-id">${escapeHtml(order.orderId)}</div>
+            <div class="muted">${escapeHtml(order.source || '')}</div>
+          </td>
+          <td>
+            <strong>${escapeHtml(order.customerName)}</strong>
+            <div class="muted">${escapeHtml(order.customerPhone || '')}</div>
+          </td>
+          <td>
+            ${formatDate(order.timestamp)}
+          </td>
+          <td>
+            <strong>${formatMoney(order.total, order.currency || 'SRD')}</strong>
+          </td>
+          <td>
+            <span class="status ${statusClass(order.status)}">${escapeHtml(order.status || '')}</span>
+          </td>
+          <td>
+            <div class="actions">
+              <button class="small-btn" onclick="openOrder('${escapeJs(order.orderId)}')">Open</button>
+              <button class="small-btn wa" onclick="whatsappCustomer('${escapeJs(order.customerPhone)}', '${escapeJs(order.customerName)}')">WhatsApp</button>
+            </div>
+          </td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function matchesDateFilter(timestamp, filter) {
+      const d = new Date(timestamp);
+      if (isNaN(d)) return false;
+
+      const now = new Date();
+      const start = new Date();
+
+      if (filter === 'today') {
+        return d.toDateString() === now.toDateString();
+      }
+
+      start.setDate(now.getDate() - Number(filter));
+      return d >= start;
+    }
+
+    function openOrder(orderId) {
+      currentOrder = orders.find(o => o.orderId === orderId);
+      if (!currentOrder) return;
+
+      document.getElementById('modalTitle').textContent = currentOrder.orderId;
+      document.getElementById('modalSubtitle').textContent = formatDate(currentOrder.timestamp);
+      document.getElementById('detailCustomer').textContent = currentOrder.customerName || '';
+      document.getElementById('detailContact').textContent = currentOrder.customerPhone || '';
+      document.getElementById('detailAddress').textContent = currentOrder.customerAddress || '';
+      document.getElementById('detailTotal').textContent = formatMoney(currentOrder.total, currentOrder.currency || 'SRD');
+      document.getElementById('detailItems').textContent = currentOrder.items || '';
+      document.getElementById('modalStatus').value = currentOrder.status || 'WhatsApp Draft Created';
+      document.getElementById('modalNotes').value = currentOrder.notes || '';
+
+      document.getElementById('orderModal').classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('orderModal').classList.remove('show');
+      currentOrder = null;
+    }
+
+    async function saveOrderChanges() {
+      if (!currentOrder) return;
+
+      const status = document.getElementById('modalStatus').value;
+      const notes = document.getElementById('modalNotes').value;
+
+      const response = await apiCall('adminUpdateOrder', {
+        orderId: currentOrder.orderId,
+        status,
+        notes
+      });
+
+      if (!response || !response.ok) {
+        alert(response && response.error ? response.error : 'Could not save changes.');
+        return;
+      }
+
+      currentOrder.status = status;
+      currentOrder.notes = notes;
+
+      const index = orders.findIndex(o => o.orderId === currentOrder.orderId);
+      if (index >= 0) orders[index] = currentOrder;
+
+      renderOrders();
+      closeModal();
+    }
+
+    function whatsappCurrentCustomer() {
+      if (!currentOrder) return;
+      whatsappCustomer(currentOrder.customerPhone, currentOrder.customerName);
+    }
+
+    function whatsappCustomer(phone, name) {
+      const clean = String(phone || '').replace(/\D/g, '');
+      if (!clean) {
+        alert('No phone number available.');
+        return;
+      }
+
+      const msg = `Hi ${name || ''}, regarding your order.`;
+      window.open(`https://wa.me/${clean}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function formatMoney(value, currency) {
+      return `${currency || 'SRD'} ${Number(value || 0).toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+    }
+
+    function formatDate(value) {
+      const d = new Date(value);
+      if (isNaN(d)) return '';
+      return d.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function statusClass(status) {
+      if (!status) return '';
+      return String(status).split(' ')[0];
+    }
+
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    }
+
+    function escapeJs(value) {
+      return String(value || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+  </script>
+</body>
+</html>
