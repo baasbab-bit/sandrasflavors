@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🔥Fire and Ice❄️ Catalog</title>
+  <title>Epic Vape Catalog</title>
   <style>
     :root {
       --theme: #111827;
@@ -515,17 +515,11 @@
       border-color: rgba(15, 23, 42, .12);
     }
 
-    .imgbox {
-      cursor: pointer;
-    }
 
     .imgbox img {
       transition: transform .24s ease;
     }
 
-    .card:hover .imgbox img {
-      transform: scale(1.035);
-    }
 
     .btn {
       position: relative;
@@ -1200,17 +1194,11 @@
       border-color: rgba(15, 23, 42, .12);
     }
 
-    .imgbox {
-      cursor: pointer;
-    }
 
     .imgbox img {
       transition: transform .24s ease;
     }
 
-    .card:hover .imgbox img {
-      transform: scale(1.035);
-    }
 
     .btn {
       position: relative;
@@ -1651,7 +1639,6 @@
   <div id="checkoutModal" style="display:none;"></div>
   <div id="toastHost" class="toast-host"></div>
   <div id="cartDrawer" style="display:none;"></div>
-  <div id="previewModal" style="display:none;"></div>
 
   <script>
     const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbwvM-VSrKnQhVrWdXolLX6EYQOF21uBuS4jqzbcr1mbfS6BtMEtWDS1FbBATdEehqzT/exec';
@@ -1955,10 +1942,10 @@
 
       card.innerHTML = `
         ${ribbons}
-        <div class="imgbox" onclick="openProductPreview('${escapeJs(group.key)}')">${img}</div>
+        <div class="imgbox">${img}</div>
         <div class="content">
           <div class="category">${escapeHtml(group.category || '')}</div>
-          <div class="title" onclick="openProductPreview('${escapeJs(group.key)}')" style="cursor:pointer;">${escapeHtml(title)}</div>
+          <div class="title">${escapeHtml(title)}</div>
           <div class="desc">${escapeHtml(group.description || '')}</div>
           <div class="product-actions">
             <div class="row price-row">
@@ -2012,84 +1999,6 @@
 
         strip.appendChild(card);
       });
-    }
-
-    function openProductPreview(groupKey) {
-      const groupedProducts = getGroupedProducts(catalog.products || []);
-      const group = groupedProducts.find(g => g.key === groupKey);
-      if (!group) return;
-
-      const modal = document.getElementById('previewModal');
-      const currency = catalog.settings.currency || 'SRD';
-      const title = [group.brand, group.productName].filter(Boolean).join(' ');
-      const firstImage = group.imageUrl || (group.options.find(o => o.imageUrl) || {}).imageUrl || '';
-
-      modal.style.display = 'block';
-      modal.innerHTML = `
-        <div class="modal-overlay" onclick="closeProductPreviewOnBackdrop(event)">
-          <div class="modal-box fade-in-up">
-            <div class="modal-head">
-              <div>
-                <div class="preview-category">${escapeHtml(group.category || '')}</div>
-                <h2 class="preview-title">${escapeHtml(title)}</h2>
-              </div>
-              <button class="xbtn" onclick="closeProductPreview()">×</button>
-            </div>
-
-            <div class="preview-layout">
-              ${
-                firstImage
-                  ? `<img class="preview-image" src="${escapeAttr(firstImage)}" alt="${escapeAttr(title)}" onerror="this.outerHTML='<div class=&quot;preview-image noimg&quot;>Image unavailable</div>'" />`
-                  : '<div class="preview-image noimg">No image</div>'
-              }
-
-              <div>
-                <div class="preview-meta">
-                  ${getRibbonHtml(group)}
-                  <span class="badge">${group.options.length} option${group.options.length === 1 ? '' : 's'}</span>
-                  <span class="badge">${formatMoney(group.retailPrice, currency)}</span>
-                </div>
-
-                ${group.description ? `<div class="preview-desc">${escapeHtml(group.description)}</div>` : ''}
-
-                <button class="btn" style="width:100%; margin-bottom:12px;" onclick="closeProductPreview(); openOptionModal('${escapeJs(group.key)}')">
-                  Order Now
-                </button>
-
-                <div class="preview-options">
-                  ${group.options.slice(0, 6).map(option => {
-                    const optionName = getFlavorName(option);
-                    const img = option.imageUrl
-                      ? `<img src="${escapeAttr(option.imageUrl)}" alt="${escapeAttr(optionName)}" onerror="this.outerHTML='<div class=&quot;preview-option-img noimg&quot;>No img</div>'" />`
-                      : '<div class="preview-option-img noimg">No img</div>';
-
-                    return `
-                      <div class="preview-option-row">
-                        ${img}
-                        <div>
-                          <div class="preview-option-name">${escapeHtml(optionName)}</div>
-                          <div class="preview-option-price">${formatMoney(option.retailPrice, currency)} · ${escapeHtml(option.stockStatus || 'Available')}</div>
-                        </div>
-                        <button class="btn" onclick="closeProductPreview(); openOptionModal('${escapeJs(group.key)}')">Select</button>
-                      </div>
-                    `;
-                  }).join('')}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function closeProductPreviewOnBackdrop(event) {
-      if (event.target.classList.contains('modal-overlay')) closeProductPreview();
-    }
-
-    function closeProductPreview() {
-      const modal = document.getElementById('previewModal');
-      modal.style.display = 'none';
-      modal.innerHTML = '';
     }
 
     function openOptionModal(groupKey) {
