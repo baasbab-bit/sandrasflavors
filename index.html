@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Epic Vape Catalog</title>
+  <title>🔥Fire and Ice❄️ Catalog</title>
   <style>
     :root {
       --theme: #111827;
@@ -1646,6 +1646,60 @@
     let catalog = { settings: {}, categories: [], products: [] };
     let cart = [];
     const CART_STORAGE_KEY = 'retailCatalogCart_v1';
+    let modalHistoryLocked = false;
+
+    window.addEventListener('popstate', function() {
+      closeTopModalFromBackButton();
+    });
+
+    function pushModalHistory(modalName) {
+      if (modalHistoryLocked) return;
+
+      try {
+        window.history.pushState({ catalogModal: modalName }, '', window.location.href);
+      } catch (e) {
+        console.warn('Could not push modal history state', e);
+      }
+    }
+
+    function removeModalHistory() {
+      if (modalHistoryLocked) return;
+
+      try {
+        if (window.history.state && window.history.state.catalogModal) {
+          modalHistoryLocked = true;
+          window.history.back();
+          setTimeout(function() { modalHistoryLocked = false; }, 120);
+        }
+      } catch (e) {
+        modalHistoryLocked = false;
+        console.warn('Could not remove modal history state', e);
+      }
+    }
+
+    function isVisible(id) {
+      const el = document.getElementById(id);
+      return !!(el && el.style.display !== 'none' && el.innerHTML.trim());
+    }
+
+    function closeTopModalFromBackButton() {
+      if (isVisible('checkoutModal')) {
+        closeCheckoutModal(true);
+        return true;
+      }
+
+      if (isVisible('flavorModal')) {
+        closeOptionModal(true);
+        return true;
+      }
+
+      if (isVisible('cartDrawer')) {
+        closeCartDrawer(true);
+        return true;
+      }
+
+      return false;
+    }
 
     document.addEventListener('DOMContentLoaded', init);
 
@@ -2011,6 +2065,7 @@
       const title = [group.brand, group.productName].filter(Boolean).join(' ');
 
       modal.style.display = 'block';
+      pushModalHistory('option');
       modal.innerHTML = `
         <div class="modal-overlay" onclick="closeOptionModalOnBackdrop(event)">
           <div class="modal-box">
@@ -2055,10 +2110,11 @@
       if (event.target.classList.contains('modal-overlay')) closeOptionModal();
     }
 
-    function closeOptionModal() {
+    function closeOptionModal(fromBackButton) {
       const modal = document.getElementById('flavorModal');
       modal.style.display = 'none';
       modal.innerHTML = '';
+      if (!fromBackButton) removeModalHistory();
     }
 
     function addOptionToCart(id, buttonEl) {
@@ -2140,15 +2196,17 @@
       if (!drawer) return;
 
       drawer.style.display = 'block';
+      pushModalHistory('cart');
       renderCartDrawer();
     }
 
-    function closeCartDrawer() {
+    function closeCartDrawer(fromBackButton) {
       const drawer = document.getElementById('cartDrawer');
       if (!drawer) return;
 
       drawer.style.display = 'none';
       drawer.innerHTML = '';
+      if (!fromBackButton) removeModalHistory();
     }
 
     function closeCartDrawerOnBackdrop(event) {
@@ -2264,7 +2322,7 @@
         return;
       }
 
-      closeCartDrawer();
+      closeCartDrawer(true);
       openCheckoutModal();
     }
 
@@ -2276,6 +2334,7 @@
 
       const modal = document.getElementById('checkoutModal');
       modal.style.display = 'block';
+      pushModalHistory('checkout');
 
       modal.innerHTML = `
         <div class="modal-overlay" onclick="closeCheckoutModalOnBackdrop(event)">
@@ -2320,10 +2379,11 @@
       if (event.target.classList.contains('modal-overlay')) closeCheckoutModal();
     }
 
-    function closeCheckoutModal() {
+    function closeCheckoutModal(fromBackButton) {
       const modal = document.getElementById('checkoutModal');
       modal.style.display = 'none';
       modal.innerHTML = '';
+      if (!fromBackButton) removeModalHistory();
     }
 
     function logOrderToSheet(payload) {
