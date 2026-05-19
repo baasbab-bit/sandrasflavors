@@ -381,6 +381,144 @@
       background:white;
     }
 
+
+    .product-group {
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:20px;
+      box-shadow:0 8px 22px rgba(15,23,42,.05);
+      overflow:hidden;
+    }
+
+    .group-head {
+      display:grid;
+      grid-template-columns:82px 1fr auto;
+      gap:12px;
+      align-items:center;
+      padding:12px;
+      cursor:pointer;
+      border-bottom:1px solid var(--line);
+      background:#FFFFFF;
+    }
+
+    .group-head:hover {
+      background:#F8FAFC;
+    }
+
+    .group-title {
+      font-weight:950;
+      line-height:1.2;
+      font-size:16px;
+    }
+
+    .group-meta {
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px;
+      line-height:1.35;
+    }
+
+    .group-badges {
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      margin-top:7px;
+    }
+
+    .mini-badge {
+      border-radius:999px;
+      padding:5px 8px;
+      background:#F1F5F9;
+      color:#334155;
+      font-size:11px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .mini-badge.warn {
+      background:#FFFBEB;
+      color:var(--warn);
+      border:1px solid #FDE68A;
+    }
+
+    .group-toggle {
+      border:none;
+      background:#F1F5F9;
+      color:#334155;
+      min-width:42px;
+      border-radius:999px;
+      padding:8px 10px;
+    }
+
+    .group-body {
+      display:block;
+      padding:10px;
+      background:#F8FAFC;
+    }
+
+    .product-group.collapsed .group-body {
+      display:none;
+    }
+
+    .variant-card {
+      background:#FFFFFF;
+      border:1px solid var(--line);
+      border-radius:16px;
+      margin-bottom:10px;
+      overflow:hidden;
+    }
+
+    .variant-card:last-child {
+      margin-bottom:0;
+    }
+
+    .variant-card.dirty {
+      border-color:rgba(180,83,9,.55);
+      box-shadow:0 10px 26px rgba(180,83,9,.12);
+    }
+
+    .variant-head {
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+      padding:10px 12px;
+      border-bottom:1px solid var(--line);
+      background:#FFFFFF;
+    }
+
+    .variant-title {
+      font-weight:950;
+      font-size:14px;
+      line-height:1.25;
+    }
+
+    .variant-meta {
+      color:var(--muted);
+      font-size:12px;
+      margin-top:3px;
+    }
+
+    .quick-row {
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:8px;
+      margin-top:8px;
+    }
+
+    .quick-row .field label {
+      font-size:10px;
+    }
+
+    .variant-extra {
+      grid-column:1 / -1;
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:10px;
+      padding-top:6px;
+      border-top:1px dashed var(--line);
+    }
+
     @media (max-width:850px) {
       .toolbar-grid {
         grid-template-columns:1fr 1fr;
@@ -463,6 +601,45 @@
       .save-actions {
         width:100%;
       }
+
+      .group-head {
+        grid-template-columns:58px 1fr auto;
+        padding:10px;
+        gap:9px;
+      }
+
+      .group-title {
+        font-size:14px;
+      }
+
+      .group-meta {
+        font-size:11px;
+      }
+
+      .group-body {
+        padding:8px;
+      }
+
+      .variant-head {
+        padding:9px 10px;
+      }
+
+      .quick-row {
+        grid-template-columns:1fr;
+      }
+
+      .variant-extra {
+        grid-template-columns:1fr;
+      }
+
+      .toggles {
+        gap:6px;
+      }
+
+      .toggle {
+        padding:7px 9px;
+        font-size:11px;
+      }
     }
   </style>
 </head>
@@ -470,14 +647,14 @@
   <header>
     <div class="wrap">
       <h1>Catalog Admin</h1>
-      <p class="subtitle">Manage product visibility, prices, stock labels, badges, and sorting without editing the Google Sheet directly.</p>
+      <p class="subtitle">Manage product visibility, prices, stock labels, badges, and sorting.</p>
     </div>
   </header>
 
   <section id="loginPanel" class="wrap login-panel">
     <div class="login-card">
       <h2>Admin Login</h2>
-      <p>Enter the admin access key to manage catalog products.</p>
+      <p>Enter the admin PIN to manage catalog products.</p>
       <form id="loginForm" class="login-form">
         <input id="adminKeyInput" type="password" placeholder="Admin access key" autocomplete="current-password" />
         <button class="btn" type="submit">Unlock Admin</button>
@@ -823,64 +1000,147 @@
         return true;
       });
 
-      setStatus(filtered.length + ' product' + (filtered.length === 1 ? '' : 's') + ' shown · ' + products.length + ' total');
+      const groups = getProductGroups(filtered);
+
+      setStatus(
+        groups.length + ' grouped product' + (groups.length === 1 ? '' : 's') +
+        ' · ' + filtered.length + ' variant row' + (filtered.length === 1 ? '' : 's') +
+        ' shown · ' + products.length + ' total rows'
+      );
 
       grid.innerHTML = '';
-      empty.style.display = filtered.length ? 'none' : 'block';
+      empty.style.display = groups.length ? 'none' : 'block';
 
-      filtered.forEach(product => {
-        grid.appendChild(productCard(product));
+      groups.forEach(group => {
+        grid.appendChild(productGroupCard(group));
       });
 
       updateSaveBar();
     }
 
-    function productCard(product) {
-      const card = document.createElement('article');
-      card.className = 'product-card' + (dirtyProducts.has(String(product.rowNumber)) ? ' dirty' : '');
-      card.dataset.rowNumber = product.rowNumber;
+    function getProductGroups(items) {
+      const map = {};
 
-      const title = [product.brand, product.productName].filter(Boolean).join(' ') || 'Untitled product';
-      const img = product.imageUrl
-        ? '<img class="thumb" src="' + escapeAttr(product.imageUrl) + '" alt="' + escapeAttr(title) + '" onerror="this.style.display=\'none\'" />'
+      (items || []).forEach(product => {
+        const key = [
+          product.category || '',
+          product.brand || '',
+          product.productName || ''
+        ].join('___');
+
+        if (!map[key]) {
+          map[key] = {
+            key,
+            category: product.category || '',
+            brand: product.brand || '',
+            productName: product.productName || '',
+            imageUrl: product.imageUrl || '',
+            description: product.description || '',
+            variants: []
+          };
+        }
+
+        if (!map[key].imageUrl && product.imageUrl) map[key].imageUrl = product.imageUrl;
+        if (!map[key].description && product.description) map[key].description = product.description;
+        map[key].variants.push(product);
+      });
+
+      return Object.values(map).sort((a, b) => {
+        const cat = String(a.category || '').localeCompare(String(b.category || ''));
+        if (cat !== 0) return cat;
+        const name = [a.brand, a.productName].join(' ').localeCompare([b.brand, b.productName].join(' '));
+        return name;
+      });
+    }
+
+    function productGroupCard(group) {
+      const section = document.createElement('article');
+      const hasDirty = group.variants.some(v => dirtyProducts.has(String(v.rowNumber)));
+      section.className = 'product-group' + (hasDirty ? ' dirty' : '');
+      section.dataset.groupKey = group.key;
+
+      const title = [group.brand, group.productName].filter(Boolean).join(' ') || 'Untitled product';
+      const img = group.imageUrl
+        ? '<img class="thumb" src="' + escapeAttr(group.imageUrl) + '" alt="' + escapeAttr(title) + '" />'
         : '<div class="thumb"></div>';
 
-      card.innerHTML =
-        '<div class="product-head">' +
+      const activeCount = group.variants.filter(v => v.active).length;
+      const dirtyCount = group.variants.filter(v => dirtyProducts.has(String(v.rowNumber))).length;
+      const soldCount = group.variants.filter(v => String(v.stockStatus || '').toLowerCase().includes('sold')).length;
+
+      section.innerHTML =
+        '<div class="group-head" onclick="toggleProductGroup(this)">' +
           img +
           '<div>' +
-            '<div class="title">' + escapeHtml(title) + '</div>' +
-            '<div class="meta">' +
-              escapeHtml(product.category || 'No category') +
-              (product.flavor ? ' · ' + escapeHtml(product.flavor) : '') +
-              ' · Row ' + product.rowNumber +
+            '<div class="group-title">' + escapeHtml(title) + '</div>' +
+            '<div class="group-meta">' + escapeHtml(group.category || 'No category') + ' · ' + group.variants.length + ' variant' + (group.variants.length === 1 ? '' : 's') + '</div>' +
+            '<div class="group-badges">' +
+              '<span class="mini-badge">' + activeCount + ' active</span>' +
+              (soldCount ? '<span class="mini-badge warn">' + soldCount + ' sold out</span>' : '') +
+              (dirtyCount ? '<span class="mini-badge warn">' + dirtyCount + ' unsaved</span>' : '') +
             '</div>' +
+          '</div>' +
+          '<button class="group-toggle" type="button">▾</button>' +
+        '</div>' +
+        '<div class="group-body"></div>';
+
+      const body = section.querySelector('.group-body');
+      group.variants.forEach(variant => {
+        body.appendChild(variantCard(variant));
+      });
+
+      return section;
+    }
+
+    function toggleProductGroup(head) {
+      const group = head.closest('.product-group');
+      if (!group) return;
+
+      group.classList.toggle('collapsed');
+      const btn = group.querySelector('.group-toggle');
+      if (btn) btn.textContent = group.classList.contains('collapsed') ? '▸' : '▾';
+    }
+
+    function variantCard(product) {
+      const card = document.createElement('article');
+      card.className = 'variant-card' + (dirtyProducts.has(String(product.rowNumber)) ? ' dirty' : '');
+      card.dataset.rowNumber = product.rowNumber;
+
+      const title = product.flavor || 'Default Option';
+
+      card.innerHTML =
+        '<div class="variant-head">' +
+          '<div>' +
+            '<div class="variant-title">' + escapeHtml(title) + '</div>' +
+            '<div class="variant-meta">Row ' + product.rowNumber + ' · ' + escapeHtml(product.stockStatus || 'Available') + '</div>' +
             '<div class="dirty-pill">Unsaved changes</div>' +
           '</div>' +
           '<div class="status-pill ' + (product.active ? '' : 'inactive') + '">' + (product.active ? 'Active' : 'Inactive') + '</div>' +
         '</div>' +
 
         '<div class="editor">' +
-          fieldHtml('Category', 'category', product.category, 'text') +
-          fieldHtml('Brand', 'brand', product.brand, 'text') +
-          fieldHtml('Product Name', 'productName', product.productName, 'text', 'field-wide') +
-          fieldHtml('Flavor', 'flavor', product.flavor, 'text') +
+          '<div class="quick-row field-full">' +
+            fieldHtml('Retail Price', 'retailPrice', product.retailPrice, 'number') +
+            fieldHtml('Sort Order', 'sortOrder', product.sortOrder || 9999, 'number') +
+            selectHtml('Stock Status', 'stockStatus', product.stockStatus || 'Available', [
+              'Available',
+              'Low Stock',
+              'Sold Out',
+              'Coming Soon'
+            ]) +
+          '</div>' +
 
-          fieldHtml('Retail Price', 'retailPrice', product.retailPrice, 'number') +
-          fieldHtml('Suggested Price', 'suggestedRetailPrice', product.suggestedRetailPrice, 'number') +
-          fieldHtml('MOQ', 'moq', product.moq || 1, 'number') +
-          fieldHtml('Sort Order', 'sortOrder', product.sortOrder || 9999, 'number') +
-
-          selectHtml('Stock Status', 'stockStatus', product.stockStatus || 'Available', [
-            'Available',
-            'Low Stock',
-            'Sold Out',
-            'Coming Soon'
-          ]) +
-
-          fieldHtml('Image URL', 'imageUrl', product.imageUrl, 'text', 'field-wide') +
-          textareaHtml('Description', 'description', product.description, 'field-full') +
-          textareaHtml('Notes', 'notes', product.notes, 'field-full') +
+          '<div class="variant-extra">' +
+            fieldHtml('Category', 'category', product.category, 'text') +
+            fieldHtml('Brand', 'brand', product.brand, 'text') +
+            fieldHtml('Product Name', 'productName', product.productName, 'text') +
+            fieldHtml('Flavor', 'flavor', product.flavor, 'text') +
+            fieldHtml('Suggested Price', 'suggestedRetailPrice', product.suggestedRetailPrice, 'number') +
+            fieldHtml('MOQ', 'moq', product.moq || 1, 'number') +
+            fieldHtml('Image URL', 'imageUrl', product.imageUrl, 'text', 'field-full') +
+            textareaHtml('Description', 'description', product.description, 'field-full') +
+            textareaHtml('Notes', 'notes', product.notes, 'field-full') +
+          '</div>' +
 
           '<div class="toggles">' +
             toggleHtml('Active', 'active', product.active) +
@@ -892,8 +1152,8 @@
           '</div>' +
 
           '<div class="actions">' +
-            '<div class="small-note">Changes are staged locally. Use Save All Changes above.</div>' +
-            '<button class="btn-soft" type="button" onclick="discardProductChanges(' + product.rowNumber + ')">Discard This Product</button>' +
+            '<div class="small-note">Variant changes are staged locally. Use Save All Changes above.</div>' +
+            '<button class="btn-soft" type="button" onclick="discardProductChanges(' + product.rowNumber + ')">Discard This Variant</button>' +
           '</div>' +
         '</div>';
 
@@ -952,7 +1212,11 @@
       Object.assign(existing, updated);
       dirtyProducts.set(String(rowNumber), updated);
 
-      if (card) card.classList.add('dirty');
+      if (card) {
+        card.classList.add('dirty');
+        const group = card.closest('.product-group');
+        if (group) group.classList.add('dirty');
+      }
       updateSaveBar();
     }
 
