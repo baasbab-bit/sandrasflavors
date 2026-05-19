@@ -2703,8 +2703,32 @@
       ].join('\n');
     }
 
-async function sendWhatsAppOrder() {
+
+    function openWhatsAppNative(phoneNumber, message) {
+      const cleanPhone = String(phoneNumber || '').replace(/[^\d]/g, '');
+      const encodedMessage = encodeURIComponent(message || '');
+
+      const appUrl = cleanPhone
+        ? 'whatsapp://send?phone=' + cleanPhone + '&text=' + encodedMessage
+        : 'whatsapp://send?text=' + encodedMessage;
+
+      const webUrl = cleanPhone
+        ? 'https://wa.me/' + cleanPhone + '?text=' + encodedMessage
+        : 'https://wa.me/?text=' + encodedMessage;
+
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+
+      if (isMobile) {
+        window.location.href = appUrl;
+        return;
+      }
+
+      window.open(webUrl, '_blank');
+    }
+
+function sendWhatsAppOrder() {
       saveCustomerDetails();
+
       const settings = catalog.settings || {};
       const phone = String(settings.whatsappNumber || '').replace(/\D/g, '');
 
@@ -2731,13 +2755,14 @@ async function sendWhatsAppOrder() {
         return;
       }
 
-      /*
-        Open WhatsApp window immediately while still inside the user click event.
-        This prevents mobile browsers/popup blockers from blocking WhatsApp.
-      */
-      const waWindow = window.open('', '_blank');
+      const checkoutError = document.getElementById('checkoutError');
+      if (checkoutError) {
+        checkoutError.style.display = 'none';
+        checkoutError.textContent = '';
+      }
 
       const currency = settings.currency || 'SRD';
+      const storeName = settings.storeName || settings.catalogTitle || 'Online Catalog';
       const orderItems = [];
       let total = 0;
 
@@ -2765,6 +2790,8 @@ async function sendWhatsAppOrder() {
         });
       });
 
+      const localRef = 'WEB-' + Date.now();
+
       const orderPayload = {
         customerName: name,
         customerPhone,
@@ -2773,88 +2800,66 @@ async function sendWhatsAppOrder() {
         total,
         items: orderItems,
         source: 'Online Catalog',
+        localRef,
         createdAt: new Date().toISOString()
       };
 
-      const checkoutError = document.getElementById('checkoutError');
-      if (checkoutError) {
-        checkoutError.style.display = 'none';
-        checkoutError.textContent = '';
-      }
-
-      showToast('Preparing order', 'Saving order and opening WhatsApp...');
-
-      const logResult = await logOrderToSheet(orderPayload);
-
-      const orderId = logResult && logResult.ok && logResult.orderId
-        ? logResult.orderId
-        : 'NOT-LOGGED';
-
-      if (!logResult || !logResult.ok) {
-        console.warn('Order logging failed:', logResult);
-        showToast('Order log warning', 'WhatsApp will still open, but the order was not saved.');
-      } else {
-        showToast('Order recorded', orderId);
-      }
-
       const lines = [];
 
-      lines.push('*NEW ORDER*');
+      lines.push('*NEW ORDER - ' + storeName + '*');
       lines.push('');
-      lines.push('━━━━━━━━━━━━━━');
-      lines.push('ORDER REFERENCE');
-      lines.push('━━━━━━━━━━━━━━');
+      lines.push('Reference: ' + localRef);
       lines.push('');
-      lines.push(`Order ID: ${orderId}`);
-      lines.push('');
-      lines.push('━━━━━━━━━━━━━━');
-      lines.push('CUSTOMER DETAILS');
-      lines.push('━━━━━━━━━━━━━━');
-      lines.push('');
-      lines.push(`Name: ${name}`);
+      lines.push('*CUSTOMER DETAILS*');
+      lines.push('Name: ' + name);
 
       if (customerPhone) {
-        lines.push(`Phone: ${customerPhone}`);
+        lines.push('Phone: ' + customerPhone);
       }
 
-      lines.push(`Address: ${address}`);
+      lines.push('Address / pickup notes: ' + address);
       lines.push('');
-      lines.push('━━━━━━━━━━━━━━');
-      lines.push('ORDER ITEMS');
-      lines.push('━━━━━━━━━━━━━━');
-      lines.push('');
+      lines.push('*ORDER ITEMS*');
 
       orderItems.forEach((item, index) => {
         const productName = [item.brand, item.productName].filter(Boolean).join(' ');
+        const optionText = item.optionName ? ' - ' + item.optionName : '';
 
-        lines.push(`${index + 1}. ${productName}`);
-
-        if (item.optionName) {
-          lines.push(`   ${item.optionName}`);
-        }
-
-        lines.push(`   Qty: ${item.qty}`);
-        lines.push(`   ${formatMoney(item.price, currency)} each`);
-        lines.push(`   Subtotal: ${formatMoney(item.subtotal, currency)}`);
         lines.push('');
+        lines.push((index + 1) + '. ' + item.qty + 'x ' + productName + optionText);
+        lines.push('   ' + formatMoney(item.price, currency) + ' each');
+        lines.push('   Subtotal: ' + formatMoney(item.subtotal, currency));
       });
 
-      lines.push('━━━━━━━━━━━━━━');
-      lines.push('ESTIMATED TOTAL');
-      lines.push('━━━━━━━━━━━━━━');
       lines.push('');
-      lines.push(`${formatMoney(total, currency)}`);
+      lines.push('*ESTIMATED TOTAL*');
+      lines.push(formatMoney(total, currency));
       lines.push('');
-      lines.push('━━━━━━━━━━━━━━');
       lines.push('Sent via Online Catalog');
-      lines.push('━━━━━━━━━━━━━━');
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(lines.join('\n'))}`;
 
-      if (waWindow) {
-        waWindow.location.href = url;
-      } else {
-        window.location.href = url;
-      }
+      const message = lines.join('\n');
+
+      /*
+        Important:
+        Open WhatsApp immediately from the user's tap.
+        Do not wait for Google Sheets logging first, otherwise mobile browsers
+        may route through a browser chooser instead of opening the native app.
+      */
+      openWhatsAppNative(phone, message);
+
+      logOrderToSheet(orderPayload)
+        .then(result => {
+          if (result && result.ok) {
+            showToast('Order recorded', result.orderId || localRef);
+          } else {
+            console.warn('Order logging failed:', result);
+            showToast('WhatsApp opened', 'Order was not saved in the sheet.');
+          }
+        })
+        .catch(err => {
+          console.warn('Order logging failed:', err);
+          showToast('WhatsApp opened', 'Order was not saved in the sheet.');
+        });
 
       closeCheckoutModal();
     }
