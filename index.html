@@ -1625,9 +1625,8 @@
   <section class="toolbar">
     <div class="toolbar-grid">
       <input id="search" type="search" placeholder="Search product, brand, option..." />
-      <button id="refreshCatalogBtn" class="refresh-btn" type="button">Refresh catalog</button>
     </div>
-    <div id="cacheStatus" class="cache-status">Loading catalog...</div>
+    <div id="cacheStatus" class="cache-status" style="display:none;"></div>
     
     <select id="categoryFilter" style="display:none;">
       <option value="">All categories</option>
@@ -1658,7 +1657,35 @@
     </div>
   </section>
 
-  <footer id="footerText"></footer>
+  
+  <div id="catalogUtilityBar" style="
+    text-align:center;
+    color:#94A3B8;
+    font-size:11px;
+    padding:10px 16px 4px;
+  ">
+    <span id="catalogUpdatedText">Catalog ready</span>
+    ·
+    <button
+      id="refreshCatalogBtn"
+      class="refresh-btn"
+      type="button"
+      style="
+        border:none;
+        background:none;
+        padding:0;
+        margin:0;
+        color:#94A3B8;
+        font-size:11px;
+        font-weight:600;
+        cursor:pointer;
+        text-decoration:underline;
+        min-height:auto;
+      "
+    >Refresh</button>
+  </div>
+
+<footer id="footerText"></footer>
 
   <div id="flavorModal" style="display:none;"></div>
   <div id="checkoutModal" style="display:none;"></div>
@@ -1810,7 +1837,13 @@
 
     function updateCacheStatus(message) {
       const el = document.getElementById('cacheStatus');
+      const footerText = document.getElementById('catalogUpdatedText');
+
       if (el) el.textContent = message || '';
+
+      if (footerText) {
+        footerText.textContent = message || 'Catalog ready';
+      }
     }
 
     function formatCacheTime(ts) {
