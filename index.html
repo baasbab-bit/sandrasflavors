@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Epic Vape Catalog</title>
+  <title>🔥Epic Vape❄️ Catalog</title>
   <style>
     :root {
       --theme: #111827;
@@ -1083,6 +1083,29 @@
       to { transform: translateX(0); opacity: 1; }
     }
 
+
+    .refresh-btn {
+      background: #F8FAFC;
+      color: #334155;
+      border: 1px solid var(--line);
+      cursor: pointer;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .refresh-btn:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    .cache-status {
+      max-width: 1100px;
+      margin: 8px auto 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
     @media (max-width: 850px) {
       .grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1600,9 +1623,11 @@
   </section>
 
   <section class="toolbar">
-    <div class="toolbar-grid toolbar-grid-single">
+    <div class="toolbar-grid">
       <input id="search" type="search" placeholder="Search product, brand, option..." />
+      <button id="refreshCatalogBtn" class="refresh-btn" type="button">Refresh catalog</button>
     </div>
+    <div id="cacheStatus" class="cache-status">Loading catalog...</div>
     
     <select id="categoryFilter" style="display:none;">
       <option value="">All categories</option>
@@ -1646,7 +1671,10 @@
     let catalog = { settings: {}, categories: [], products: [] };
     let cart = [];
     const CART_STORAGE_KEY = 'retailCatalogCart_v1';
+    const CATALOG_CACHE_KEY = 'retailCatalogData_v2';
+    const CATALOG_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
     let modalHistoryLocked = false;
+    let catalogRefreshInProgress = false;
 
     window.addEventListener('popstate', function() {
       closeTopModalFromBackButton();
@@ -1709,10 +1737,109 @@
         updateCategoryChips();
         renderProducts();
       });
+
+      const refreshBtn = document.getElementById('refreshCatalogBtn');
+      if (refreshBtn) refreshBtn.addEventListener('click', refreshCatalog);
+
+      loadCatalogWithCache();
+    }
+
+    function loadCatalogWithCache() {
+      const cached = readCatalogCache();
+
+      if (cached && cached.data) {
+        loadCatalog(cached.data, { fromCache: true, cachedAt: cached.cachedAt });
+
+        if (isCatalogCacheFresh(cached.cachedAt)) {
+          updateCacheStatus('Loaded instantly from saved catalog. Use Refresh catalog for latest updates.');
+          return;
+        }
+
+        updateCacheStatus('Showing saved catalog. Checking for updates...');
+        loadCatalogJsonpOnly({ background: true });
+        return;
+      }
+
+      updateCacheStatus('Loading catalog from server...');
       loadCatalogJsonpOnly();
     }
 
-    function loadCatalogJsonpOnly() {
+    function refreshCatalog() {
+      clearCatalogCache();
+      updateCacheStatus('Refreshing catalog from Google Sheets...');
+      loadCatalogJsonpOnly({ forceRefresh: true });
+    }
+
+    function readCatalogCache() {
+      try {
+        const raw = localStorage.getItem(CATALOG_CACHE_KEY);
+        if (!raw) return null;
+
+        const parsed = JSON.parse(raw);
+        if (!parsed || !parsed.data || !Array.isArray(parsed.data.products)) return null;
+
+        return parsed;
+      } catch (e) {
+        console.warn('Could not read catalog cache', e);
+        return null;
+      }
+    }
+
+    function saveCatalogCache(data) {
+      try {
+        localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify({
+          cachedAt: Date.now(),
+          data: data
+        }));
+      } catch (e) {
+        console.warn('Could not save catalog cache', e);
+      }
+    }
+
+    function clearCatalogCache() {
+      try {
+        localStorage.removeItem(CATALOG_CACHE_KEY);
+      } catch (e) {
+        console.warn('Could not clear catalog cache', e);
+      }
+    }
+
+    function isCatalogCacheFresh(cachedAt) {
+      return cachedAt && (Date.now() - Number(cachedAt)) < CATALOG_CACHE_TTL_MS;
+    }
+
+    function updateCacheStatus(message) {
+      const el = document.getElementById('cacheStatus');
+      if (el) el.textContent = message || '';
+    }
+
+    function formatCacheTime(ts) {
+      if (!ts) return '';
+      try {
+        return new Date(Number(ts)).toLocaleString([], {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function setRefreshButtonLoading(isLoading) {
+      const btn = document.getElementById('refreshCatalogBtn');
+      if (!btn) return;
+
+      btn.disabled = !!isLoading;
+      btn.textContent = isLoading ? 'Refreshing...' : 'Refresh catalog';
+    }
+
+    function loadCatalogJsonpOnly(options) {
+      options = options || {};
+      if (catalogRefreshInProgress) return;
+      catalogRefreshInProgress = true;
+      setRefreshButtonLoading(true);
       const callbackName = 'catalogCallback_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
       const script = document.createElement('script');
       const separator = CATALOG_API_URL.includes('?') ? '&' : '?';
@@ -1722,20 +1849,26 @@
         completed = true;
         try { delete window[callbackName]; } catch (e) {}
         try { script.remove(); } catch (e) {}
+        catalogRefreshInProgress = false;
+        setRefreshButtonLoading(false);
 
         if (!response || response.ok === false) {
           showError(response && response.error ? response.error : 'The catalog API returned an invalid response.');
           return;
         }
 
-        loadCatalog(response);
+        saveCatalogCache(response);
+        loadCatalog(response, { fromCache: false, refreshedAt: Date.now(), background: !!options.background });
       };
 
       script.onerror = function() {
         if (completed) return;
         completed = true;
         try { delete window[callbackName]; } catch (e) {}
-        showError('Could not connect to the catalog API. Confirm the Apps Script /exec URL supports ?callback=test and returns test({...});');
+        catalogRefreshInProgress = false;
+        setRefreshButtonLoading(false);
+        if (options.background) updateCacheStatus('Saved catalog is available. Could not check for updates right now.');
+        else showError('Could not connect to the catalog API. Confirm the Apps Script /exec URL supports ?callback=test and returns test({...});');
       };
 
       setTimeout(function() {
@@ -1743,14 +1876,28 @@
         completed = true;
         try { delete window[callbackName]; } catch (e) {}
         try { script.remove(); } catch (e) {}
-        showError('Catalog API timed out. Test the Apps Script URL with ?callback=test. It must return test({...}); not plain JSON.');
+        catalogRefreshInProgress = false;
+        setRefreshButtonLoading(false);
+        if (options.background) updateCacheStatus('Saved catalog is available. Update check timed out.');
+        else showError('Catalog API timed out. Test the Apps Script URL with ?callback=test. It must return test({...}); not plain JSON.');
       }, 12000);
 
-      script.src = CATALOG_API_URL + separator + 'callback=' + encodeURIComponent(callbackName) + '&cacheBust=' + Date.now();
+      const requestParams = [
+        'callback=' + encodeURIComponent(callbackName),
+        'useCache=1'
+      ];
+
+      if (options.forceRefresh) {
+        requestParams.push('forceRefresh=1');
+        requestParams.push('cacheBust=' + Date.now());
+      }
+
+      script.src = CATALOG_API_URL + separator + requestParams.join('&');
       document.body.appendChild(script);
     }
 
-    function loadCatalog(data) {
+    function loadCatalog(data, meta) {
+      meta = meta || {};
       catalog = data || catalog;
 
       catalog.products = (catalog.products || []).map((p, index) => {
@@ -1771,6 +1918,13 @@
       renderPromos();
       renderProducts();
       updateCartBar();
+
+      if (meta.fromCache) {
+        const label = formatCacheTime(meta.cachedAt);
+        updateCacheStatus(label ? 'Loaded from saved catalog · last updated ' + label : 'Loaded from saved catalog.');
+      } else {
+        updateCacheStatus('Catalog updated just now.');
+      }
     }
 
     function applySettings(settings) {
@@ -2650,6 +2804,7 @@
     }
 
     function showError(message) {
+      updateCacheStatus('Could not load catalog.');
       document.getElementById('stats').textContent = 'Could not load catalog.';
       document.getElementById('emptyState').style.display = 'block';
       document.getElementById('emptyState').textContent = message || 'Unknown error.';
