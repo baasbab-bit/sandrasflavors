@@ -1698,6 +1698,7 @@
     let catalog = { settings: {}, categories: [], products: [] };
     let cart = [];
     const CART_STORAGE_KEY = 'retailCatalogCart_v1';
+    const CUSTOMER_STORAGE_KEY = 'retailCatalogCustomer_v1';
     const CATALOG_CACHE_KEY = 'retailCatalogData_v2';
     const CATALOG_CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
     let modalHistoryLocked = false;
@@ -2513,6 +2514,48 @@
       openCheckoutModal();
     }
 
+
+    function saveCustomerDetails() {
+      try {
+        const details = {
+          name: document.getElementById('customerName') ? document.getElementById('customerName').value.trim() : '',
+          phone: document.getElementById('customerPhone') ? document.getElementById('customerPhone').value.trim() : '',
+          address: document.getElementById('customerAddress') ? document.getElementById('customerAddress').value.trim() : ''
+        };
+
+        localStorage.setItem(CUSTOMER_STORAGE_KEY, JSON.stringify(details));
+      } catch (e) {
+        console.warn('Could not save customer details', e);
+      }
+    }
+
+    function getSavedCustomerDetails() {
+      try {
+        const raw = localStorage.getItem(CUSTOMER_STORAGE_KEY);
+        if (!raw) return { name: '', phone: '', address: '' };
+
+        const parsed = JSON.parse(raw);
+
+        return {
+          name: String(parsed.name || ''),
+          phone: String(parsed.phone || ''),
+          address: String(parsed.address || '')
+        };
+      } catch (e) {
+        console.warn('Could not read saved customer details', e);
+        return { name: '', phone: '', address: '' };
+      }
+    }
+
+    function attachCustomerAutosave() {
+      ['customerName', 'customerPhone', 'customerAddress'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('input', saveCustomerDetails);
+        el.addEventListener('change', saveCustomerDetails);
+      });
+    }
+
     function openCheckoutModal() {
       if (!cart.length) {
         alert('Please add at least one product first.');
@@ -2520,6 +2563,7 @@
       }
 
       const modal = document.getElementById('checkoutModal');
+      const savedCustomer = getSavedCustomerDetails();
       modal.style.display = 'block';
       pushModalHistory('checkout');
 
@@ -2537,17 +2581,17 @@
             <div class="form-grid">
               <label>
                 Name *
-                <input id="customerName" type="text" placeholder="Your name" autocomplete="name" />
+                <input id="customerName" type="text" placeholder="Your name" autocomplete="name" value="${escapeAttr(savedCustomer.name)}" />
               </label>
 
               <label>
                 Address *
-                <textarea id="customerAddress" rows="3" placeholder="Delivery or pickup address"></textarea>
+                <textarea id="customerAddress" rows="3" placeholder="Delivery or pickup address">${escapeHtml(savedCustomer.address)}</textarea>
               </label>
 
               <label>
                 Phone number
-                <input id="customerPhone" type="tel" placeholder="Optional customer phone number" autocomplete="tel" />
+                <input id="customerPhone" type="tel" placeholder="Optional customer phone number" autocomplete="tel"  value="${escapeAttr(savedCustomer.phone)}" />
               </label>
             </div>
 
@@ -2560,6 +2604,8 @@
           </div>
         </div>
       `;
+
+      attachCustomerAutosave();
     }
 
     function closeCheckoutModalOnBackdrop(event) {
@@ -2614,7 +2660,51 @@
       });
     }
 
-    async function sendWhatsAppOrder() {
+    async 
+    function buildStructuredWhatsAppMessage(customerName, customerPhone, customerAddress) {
+      const currency = catalog.settings.currency || 'SRD';
+      const storeName = catalog.settings.storeName || catalog.settings.catalogTitle || 'Catalog';
+      const orderLines = [];
+      let total = 0;
+
+      cart.forEach((item, index) => {
+        const product = catalog.products.find(p => String(p.id) === String(item.id));
+        if (!product) return;
+
+        const productName = [product.brand, product.productName].filter(Boolean).join(' ');
+        const optionName = getFlavorName(product);
+        const qty = Number(item.qty || 0);
+        const price = Number(product.retailPrice || 0);
+        const subtotal = price * qty;
+        total += subtotal;
+
+        const cleanOption = optionName && optionName !== 'Default Option' ? ' - ' + optionName : '';
+
+        orderLines.push(
+          (index + 1) + '. ' + qty + 'x ' + productName + cleanOption + '\n' +
+          '   ' + formatMoney(price, currency) + ' each · ' + formatMoney(subtotal, currency)
+        );
+      });
+
+      return [
+        '🛒 New Order - ' + storeName,
+        '',
+        'Items:',
+        orderLines.join('\n\n'),
+        '',
+        'Estimated total: ' + formatMoney(total, currency),
+        '',
+        'Customer details:',
+        'Name: ' + customerName,
+        'Phone: ' + customerPhone,
+        'Address / pickup notes: ' + customerAddress,
+        '',
+        'Please confirm availability and delivery/pickup details.'
+      ].join('\n');
+    }
+
+async function sendWhatsAppOrder() {
+      saveCustomerDetails();
       const settings = catalog.settings || {};
       const phone = String(settings.whatsappNumber || '').replace(/\D/g, '');
 
