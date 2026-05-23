@@ -519,6 +519,96 @@
       border-top:1px dashed var(--line);
     }
 
+
+    .quickmode .variant-extra { display:none; }
+    .quickmode .actions .small-note { display:none; }
+
+    .bulkbar {
+      position: sticky;
+      top: 0;
+      z-index: 19;
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--line);
+      padding: 10px 16px;
+      box-shadow: 0 8px 18px rgba(15,23,42,.04);
+    }
+
+    .bulkbar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: auto auto 1fr auto auto auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .bulk-note {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .select-variant {
+      width: 20px;
+      height: 20px;
+      margin: 0;
+    }
+
+    .variant-select-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .summary-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.68);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 300;
+    }
+
+    .summary-box {
+      width: min(94vw, 620px);
+      max-height: 86vh;
+      overflow: auto;
+      background: #FFFFFF;
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 30px 80px rgba(0,0,0,.28);
+    }
+
+    .summary-box h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    .summary-list {
+      display: grid;
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .summary-item {
+      background: #F8FAFC;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .summary-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
     @media (max-width:850px) {
       .toolbar-grid {
         grid-template-columns:1fr 1fr;
@@ -602,6 +692,11 @@
         width:100%;
       }
 
+      .bulkbar { padding: 8px; }
+      .bulkbar-inner { grid-template-columns: 1fr; }
+      .summary-actions { grid-template-columns: 1fr; }
+
+
       .group-head {
         grid-template-columns:58px 1fr auto;
         padding:10px;
@@ -647,14 +742,14 @@
   <header>
     <div class="wrap">
       <h1>Catalog Admin</h1>
-      <p class="subtitle">Manage product visibility, prices, stock labels, badges, and sorting.</p>
+      <p class="subtitle">Manage product visibility, prices, stock labels, badges, and sorting without editing the Google Sheet directly.</p>
     </div>
   </header>
 
   <section id="loginPanel" class="wrap login-panel">
     <div class="login-card">
       <h2>Admin Login</h2>
-      <p>Enter the admin PIN to manage catalog products.</p>
+      <p>Enter the admin access key to manage catalog products.</p>
       <form id="loginForm" class="login-form">
         <input id="adminKeyInput" type="password" placeholder="Admin access key" autocomplete="current-password" />
         <button class="btn" type="submit">Unlock Admin</button>
@@ -665,6 +760,37 @@
   </section>
 
   <div id="adminApp" style="display:none;">
+    <section class="bulkbar">
+      <div class="bulkbar-inner">
+        <label class="toggle"><input id="quickModeToggle" type="checkbox" checked /> Quick Edit Mode</label>
+        <button class="btn-soft" id="collapseAllBtn" type="button">Collapse All</button>
+        <div class="bulk-note" id="selectedCountText">0 selected</div>
+        <select id="bulkStockStatus">
+          <option value="">Set stock...</option>
+          <option value="Available">Available</option>
+          <option value="Low Stock">Low Stock</option>
+          <option value="Sold Out">Sold Out</option>
+          <option value="Coming Soon">Coming Soon</option>
+        </select>
+        <select id="bulkBadgeAction">
+          <option value="">Badge/action...</option>
+          <option value="active:true">Set Active</option>
+          <option value="active:false">Set Inactive</option>
+          <option value="featured:true">Featured On</option>
+          <option value="featured:false">Featured Off</option>
+          <option value="new:true">New On</option>
+          <option value="new:false">New Off</option>
+          <option value="hot:true">Hot On</option>
+          <option value="hot:false">Hot Off</option>
+          <option value="sale:true">Sale On</option>
+          <option value="sale:false">Sale Off</option>
+          <option value="limited:true">Limited On</option>
+          <option value="limited:false">Limited Off</option>
+        </select>
+        <button class="btn" id="applyBulkBtn" type="button">Apply to Selected</button>
+      </div>
+    </section>
+
     <section class="toolbar">
       <div class="wrap toolbar-grid">
         <input id="searchInput" type="search" placeholder="Search product, brand, flavor, category..." />
@@ -704,6 +830,18 @@
     </main>
   </div>
 
+  <div class="summary-overlay" id="saveSummaryModal">
+    <div class="summary-box">
+      <h2>Review Changes</h2>
+      <div class="small-note">Review the staged changes before writing them to Google Sheets.</div>
+      <div class="summary-list" id="summaryList"></div>
+      <div class="summary-actions">
+        <button class="btn-soft" type="button" onclick="closeSaveSummary()">Cancel</button>
+        <button class="btn-ok" type="button" onclick="confirmSaveAllChanges()">Confirm & Save</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -718,6 +856,7 @@
     let originalProducts = [];
     let categories = [];
     let dirtyProducts = new Map();
+    let selectedRows = new Set();
     let saveInProgress = false;
 
     document.addEventListener('DOMContentLoaded', init);
@@ -745,8 +884,13 @@
       });
       document.getElementById('clearCacheBtn').addEventListener('click', clearPublicCache);
       document.getElementById('logoutBtn').addEventListener('click', logoutAdmin);
-      document.getElementById('saveAllBtn').addEventListener('click', saveAllChanges);
+      document.getElementById('saveAllBtn').addEventListener('click', openSaveSummary);
       document.getElementById('discardChangesBtn').addEventListener('click', discardChanges);
+      document.getElementById('quickModeToggle').addEventListener('change', updateQuickMode);
+      document.getElementById('collapseAllBtn').addEventListener('click', toggleAllGroupsCollapsed);
+      document.getElementById('applyBulkBtn').addEventListener('click', applyBulkAction);
+      document.getElementById('bulkStockStatus').addEventListener('change', updateBulkApplyState);
+      document.getElementById('bulkBadgeAction').addEventListener('change', updateBulkApplyState);
 
       window.addEventListener('beforeunload', function(event) {
         if (dirtyProducts.size > 0) {
@@ -794,6 +938,7 @@
       document.getElementById('emptyState').style.display = 'none';
       document.getElementById('adminKeyInput').value = '';
       updateSaveBar();
+      updateSelectedCount();
 
       showLoginPanel();
       showToast('Logged out.');
@@ -808,6 +953,7 @@
       hideLoginError();
       document.getElementById('loginPanel').style.display = 'none';
       document.getElementById('adminApp').style.display = 'block';
+      updateQuickMode();
     }
 
     function showLoginError(message) {
@@ -949,6 +1095,7 @@
       originalProducts = deepClone(products);
       categories = response.categories || [];
       dirtyProducts.clear();
+      selectedRows.clear();
 
       populateCategories();
       renderProducts();
@@ -1110,10 +1257,13 @@
 
       card.innerHTML =
         '<div class="variant-head">' +
-          '<div>' +
+          '<div class="variant-select-wrap">' +
+            '<input class="select-variant" type="checkbox" data-select-row="' + product.rowNumber + '" onclick="event.stopPropagation()" />' +
+            '<div>' +
             '<div class="variant-title">' + escapeHtml(title) + '</div>' +
             '<div class="variant-meta">Row ' + product.rowNumber + ' · ' + escapeHtml(product.stockStatus || 'Available') + '</div>' +
             '<div class="dirty-pill">Unsaved changes</div>' +
+            '</div>' +
           '</div>' +
           '<div class="status-pill ' + (product.active ? '' : 'inactive') + '">' + (product.active ? 'Active' : 'Inactive') + '</div>' +
         '</div>' +
@@ -1165,6 +1315,16 @@
           markProductDirty(product.rowNumber, card);
         });
       });
+
+      const selector = card.querySelector('[data-select-row]');
+      if (selector) {
+        selector.checked = selectedRows.has(String(product.rowNumber));
+        selector.addEventListener('change', function() {
+          if (selector.checked) selectedRows.add(String(product.rowNumber));
+          else selectedRows.delete(String(product.rowNumber));
+          updateSelectedCount();
+        });
+      }
 
       return card;
     }
@@ -1239,6 +1399,131 @@
       });
 
       return payload;
+    }
+
+
+    function updateQuickMode() {
+      const enabled = document.getElementById('quickModeToggle') && document.getElementById('quickModeToggle').checked;
+      document.body.classList.toggle('quickmode', !!enabled);
+    }
+
+    function toggleAllGroupsCollapsed() {
+      const groups = document.querySelectorAll('.product-group');
+      const shouldCollapse = Array.from(groups).some(group => !group.classList.contains('collapsed'));
+
+      groups.forEach(group => {
+        group.classList.toggle('collapsed', shouldCollapse);
+        const btn = group.querySelector('.group-toggle');
+        if (btn) btn.textContent = shouldCollapse ? '▸' : '▾';
+      });
+
+      document.getElementById('collapseAllBtn').textContent = shouldCollapse ? 'Expand All' : 'Collapse All';
+    }
+
+    function updateSelectedCount() {
+      const el = document.getElementById('selectedCountText');
+      if (el) el.textContent = selectedRows.size + ' selected';
+      updateBulkApplyState();
+    }
+
+    function updateBulkApplyState() {
+      const btn = document.getElementById('applyBulkBtn');
+      if (!btn) return;
+      const hasAction = !!(document.getElementById('bulkStockStatus').value || document.getElementById('bulkBadgeAction').value);
+      btn.disabled = !(selectedRows.size && hasAction);
+    }
+
+    function applyBulkAction() {
+      if (!selectedRows.size) {
+        showToast('Select variants first.');
+        return;
+      }
+
+      const stockValue = document.getElementById('bulkStockStatus').value;
+      const badgeValue = document.getElementById('bulkBadgeAction').value;
+
+      if (!stockValue && !badgeValue) {
+        showToast('Choose a bulk action first.');
+        return;
+      }
+
+      selectedRows.forEach(rowKey => {
+        const product = products.find(p => String(p.rowNumber) === String(rowKey));
+        if (!product) return;
+
+        if (stockValue) product.stockStatus = stockValue;
+
+        if (badgeValue) {
+          const parts = badgeValue.split(':');
+          product[parts[0]] = parts[1] === 'true';
+        }
+
+        dirtyProducts.set(String(product.rowNumber), Object.assign({}, product));
+      });
+
+      document.getElementById('bulkStockStatus').value = '';
+      document.getElementById('bulkBadgeAction').value = '';
+
+      renderProducts();
+      updateSelectedCount();
+      updateSaveBar();
+      showToast('Bulk action staged for ' + selectedRows.size + ' selected variant' + (selectedRows.size === 1 ? '' : 's') + '.');
+    }
+
+    function openSaveSummary() {
+      if (saveInProgress) return;
+      if (!dirtyProducts.size) {
+        showToast('No changes to save.');
+        return;
+      }
+
+      const summary = buildChangeSummary(Array.from(dirtyProducts.values()));
+      document.getElementById('summaryList').innerHTML = summary.map(item =>
+        '<div class="summary-item">' + escapeHtml(item) + '</div>'
+      ).join('');
+
+      document.getElementById('saveSummaryModal').style.display = 'flex';
+    }
+
+    function closeSaveSummary() {
+      document.getElementById('saveSummaryModal').style.display = 'none';
+    }
+
+    function buildChangeSummary(changes) {
+      const counts = { price:0, stock:0, active:0, badges:0, sort:0, other:0 };
+
+      changes.forEach(updated => {
+        const original = originalProducts.find(p => Number(p.rowNumber) === Number(updated.rowNumber)) || {};
+
+        if (Number(original.retailPrice || 0) !== Number(updated.retailPrice || 0)) counts.price++;
+        if (String(original.stockStatus || '') !== String(updated.stockStatus || '')) counts.stock++;
+        if (!!original.active !== !!updated.active) counts.active++;
+        if (Number(original.sortOrder || 0) !== Number(updated.sortOrder || 0)) counts.sort++;
+
+        ['featured','new','hot','sale','limited'].forEach(key => {
+          if (!!original[key] !== !!updated[key]) counts.badges++;
+        });
+
+        ['category','brand','productName','flavor','description','imageUrl','notes','moq','suggestedRetailPrice'].forEach(key => {
+          if (String(original[key] || '') !== String(updated[key] || '')) counts.other++;
+        });
+      });
+
+      const lines = [];
+      lines.push(changes.length + ' product/variant row' + (changes.length === 1 ? '' : 's') + ' will be updated.');
+      if (counts.price) lines.push(counts.price + ' price change' + (counts.price === 1 ? '' : 's'));
+      if (counts.stock) lines.push(counts.stock + ' stock status change' + (counts.stock === 1 ? '' : 's'));
+      if (counts.active) lines.push(counts.active + ' active/inactive change' + (counts.active === 1 ? '' : 's'));
+      if (counts.badges) lines.push(counts.badges + ' badge change' + (counts.badges === 1 ? '' : 's'));
+      if (counts.sort) lines.push(counts.sort + ' sort order change' + (counts.sort === 1 ? '' : 's'));
+      if (counts.other) lines.push(counts.other + ' other field change' + (counts.other === 1 ? '' : 's'));
+
+      return lines;
+    }
+
+    async function confirmSaveAllChanges() {
+      closeSaveSummary();
+      await saveAllChanges();
     }
 
     async function saveAllChanges() {
