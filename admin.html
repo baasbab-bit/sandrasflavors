@@ -770,6 +770,18 @@
       .bulkbar-inner { grid-template-columns: 1fr; }
       .summary-actions { grid-template-columns: 1fr; }
 
+      .toolbar,
+      .bulkbar,
+      .savebar {
+        position: static !important;
+        top: auto !important;
+        z-index: auto !important;
+      }
+
+      .bulkbar {
+        box-shadow: none;
+      }
+
 
       .group-head {
         grid-template-columns:58px 1fr auto;
