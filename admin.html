@@ -609,6 +609,80 @@
       margin-top: 14px;
     }
 
+
+    .modebar {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .mode-toggle {
+      border:1px solid var(--line);
+      background:#F8FAFC;
+      color:#334155;
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .mode-toggle.active {
+      background:var(--theme);
+      color:white;
+      border-color:var(--theme);
+    }
+
+    .problem-filters {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:8px;
+    }
+
+    .problem-chip {
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:white;
+      padding:7px 10px;
+      font-size:11px;
+      font-weight:900;
+      cursor:pointer;
+      color:#334155;
+    }
+
+    .problem-chip.active {
+      background:#FEF2F2;
+      color:var(--danger);
+      border-color:#FECACA;
+    }
+
+    .problem-flag-row {
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+
+    .problem-flag {
+      border-radius:999px;
+      padding:4px 7px;
+      font-size:10px;
+      font-weight:900;
+      background:#FEF2F2;
+      color:var(--danger);
+      border:1px solid #FECACA;
+    }
+
+    .fullmode .variant-extra {
+      display:grid !important;
+    }
+
+    .quickmode .variant-extra {
+      display:none;
+    }
+
     @media (max-width:850px) {
       .toolbar-grid {
         grid-template-columns:1fr 1fr;
@@ -762,7 +836,10 @@
   <div id="adminApp" style="display:none;">
     <section class="bulkbar">
       <div class="bulkbar-inner">
-        <label class="toggle"><input id="quickModeToggle" type="checkbox" checked /> Quick Edit Mode</label>
+        <div class="modebar">
+          <button class="mode-toggle active" id="quickModeBtn" type="button">Daily Mode</button>
+          <button class="mode-toggle" id="fullModeBtn" type="button">Full Edit</button>
+        </div>
         <button class="btn-soft" id="collapseAllBtn" type="button">Collapse All</button>
         <div class="bulk-note" id="selectedCountText">0 selected</div>
         <select id="bulkStockStatus">
@@ -857,6 +934,7 @@
     let categories = [];
     let dirtyProducts = new Map();
     let selectedRows = new Set();
+    let activeProblemFilter = '';
     let saveInProgress = false;
 
     document.addEventListener('DOMContentLoaded', init);
@@ -886,7 +964,21 @@
       document.getElementById('logoutBtn').addEventListener('click', logoutAdmin);
       document.getElementById('saveAllBtn').addEventListener('click', openSaveSummary);
       document.getElementById('discardChangesBtn').addEventListener('click', discardChanges);
-      document.getElementById('quickModeToggle').addEventListener('change', updateQuickMode);
+      document.getElementById('quickModeBtn').addEventListener('click', function(){ setEditMode('quick'); });
+      document.getElementById('fullModeBtn').addEventListener('click', function(){ setEditMode('full'); });
+
+      document.querySelectorAll('[data-problem]').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const value = btn.getAttribute('data-problem') || '';
+          activeProblemFilter = activeProblemFilter === value ? '' : value;
+
+          document.querySelectorAll('[data-problem]').forEach(chip => {
+            chip.classList.toggle('active', chip.getAttribute('data-problem') === activeProblemFilter);
+          });
+
+          renderProducts();
+        });
+      });
       document.getElementById('collapseAllBtn').addEventListener('click', toggleAllGroupsCollapsed);
       document.getElementById('applyBulkBtn').addEventListener('click', applyBulkAction);
       document.getElementById('bulkStockStatus').addEventListener('change', updateBulkApplyState);
@@ -1144,6 +1236,22 @@
         if (active === 'inactive' && product.active) return false;
         if (search && !haystack.includes(search)) return false;
 
+        if (activeProblemFilter) {
+          const missingPrice = !Number(product.retailPrice || 0);
+          const missingImage = !String(product.imageUrl || '').trim();
+          const soldOut = String(product.stockStatus || '').toLowerCase().includes('sold');
+          const inactive = !product.active;
+          const featured = !!product.featured;
+          const unsaved = dirtyProducts.has(String(product.rowNumber));
+
+          if (activeProblemFilter === 'missing-price' && !missingPrice) return false;
+          if (activeProblemFilter === 'missing-image' && !missingImage) return false;
+          if (activeProblemFilter === 'sold-out' && !soldOut) return false;
+          if (activeProblemFilter === 'inactive' && !inactive) return false;
+          if (activeProblemFilter === 'featured' && !featured) return false;
+          if (activeProblemFilter === 'unsaved' && !unsaved) return false;
+        }
+
         return true;
       });
 
@@ -1200,7 +1308,26 @@
       });
     }
 
-    function productGroupCard(group) {
+    
+    function buildGroupProblemFlags(group) {
+      const variants = Array.isArray(group.variants) ? group.variants : [];
+
+      const missingPrice = variants.filter(v => !Number(v.retailPrice || 0)).length;
+      const missingImage = variants.filter(v => !String(v.imageUrl || '').trim()).length;
+      const inactive = variants.filter(v => !v.active).length;
+
+      const flags = [];
+
+      if (missingPrice) flags.push('<span class="problem-flag">' + missingPrice + ' missing price</span>');
+      if (missingImage) flags.push('<span class="problem-flag">' + missingImage + ' missing image</span>');
+      if (inactive) flags.push('<span class="problem-flag">' + inactive + ' inactive</span>');
+
+      if (!flags.length) return '';
+
+      return '<div class="problem-flag-row">' + flags.join('') + '</div>';
+    }
+
+function productGroupCard(group) {
       const section = document.createElement('article');
       const hasDirty = group.variants.some(v => dirtyProducts.has(String(v.rowNumber)));
       section.className = 'product-group' + (hasDirty ? ' dirty' : '');
@@ -1226,6 +1353,7 @@
               (soldCount ? '<span class="mini-badge warn">' + soldCount + ' sold out</span>' : '') +
               (dirtyCount ? '<span class="mini-badge warn">' + dirtyCount + ' unsaved</span>' : '') +
             '</div>' +
+            buildGroupProblemFlags(group) +
           '</div>' +
           '<button class="group-toggle" type="button">▾</button>' +
         '</div>' +
@@ -1402,9 +1530,18 @@
     }
 
 
+    function setEditMode(mode) {
+      const isFull = mode === 'full';
+
+      document.body.classList.toggle('fullmode', isFull);
+      document.body.classList.toggle('quickmode', !isFull);
+
+      document.getElementById('quickModeBtn').classList.toggle('active', !isFull);
+      document.getElementById('fullModeBtn').classList.toggle('active', isFull);
+    }
+
     function updateQuickMode() {
-      const enabled = document.getElementById('quickModeToggle') && document.getElementById('quickModeToggle').checked;
-      document.body.classList.toggle('quickmode', !!enabled);
+      setEditMode('quick');
     }
 
     function toggleAllGroupsCollapsed() {
