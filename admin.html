@@ -356,6 +356,138 @@
       font-size:12px;
     }
 
+
+
+    .image-preview-box {
+      grid-column:1 / -1;
+      display:grid;
+      grid-template-columns:120px 1fr;
+      gap:12px;
+      align-items:center;
+      border:1px dashed var(--line);
+      background:#F8FAFC;
+      border-radius:16px;
+      padding:10px;
+    }
+
+    .image-preview-img {
+      width:120px;
+      height:120px;
+      border-radius:14px;
+      object-fit:cover;
+      background:#E5E7EB;
+      border:1px solid var(--line);
+      display:none;
+    }
+
+    .image-preview-text {
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+    }
+
+    .group-action-row {
+      display:flex;
+      justify-content:flex-end;
+      padding:0 0 10px;
+    }
+
+    .group-action-row .btn-soft {
+      font-size:12px;
+      padding:8px 10px;
+    }
+
+    @media (max-width:560px) {
+      .image-preview-box {
+        grid-template-columns:84px 1fr;
+      }
+
+      .image-preview-img {
+        width:84px;
+        height:84px;
+      }
+
+      .group-action-row {
+        justify-content:stretch;
+      }
+
+      .group-action-row button {
+        width:100%;
+      }
+    }
+
+    .modal-overlay {
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.68);
+      z-index:200;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+    }
+
+    .modal-box {
+      width:min(96vw,760px);
+      max-height:88vh;
+      overflow:auto;
+      background:white;
+      border-radius:22px;
+      box-shadow:0 30px 80px rgba(0,0,0,.28);
+      padding:18px;
+    }
+
+    .modal-head {
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+      margin-bottom:14px;
+    }
+
+    .modal-head h2 {
+      margin:0;
+      font-size:21px;
+    }
+
+    .modal-sub {
+      color:var(--muted);
+      font-size:13px;
+      margin-top:4px;
+    }
+
+    .xbtn {
+      border:1px solid var(--line);
+      background:#F8FAFC;
+      cursor:pointer;
+      padding:8px 11px;
+      border-radius:999px;
+      font-weight:900;
+    }
+
+    .create-grid {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .create-actions {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    @media (max-width:560px) {
+      .create-grid {
+        grid-template-columns:1fr;
+      }
+
+      .create-actions {
+        grid-template-columns:1fr;
+      }
+    }
+
     .toast {
       position:fixed;
       left:50%;
@@ -519,170 +651,6 @@
       border-top:1px dashed var(--line);
     }
 
-
-    .quickmode .variant-extra { display:none; }
-    .quickmode .actions .small-note { display:none; }
-
-    .bulkbar {
-      position: sticky;
-      top: 0;
-      z-index: 19;
-      background: #FFFFFF;
-      border-bottom: 1px solid var(--line);
-      padding: 10px 16px;
-      box-shadow: 0 8px 18px rgba(15,23,42,.04);
-    }
-
-    .bulkbar-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: auto auto 1fr auto auto auto;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .bulk-note {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .select-variant {
-      width: 20px;
-      height: 20px;
-      margin: 0;
-    }
-
-    .variant-select-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .summary-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15,23,42,.68);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 300;
-    }
-
-    .summary-box {
-      width: min(94vw, 620px);
-      max-height: 86vh;
-      overflow: auto;
-      background: #FFFFFF;
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: 0 30px 80px rgba(0,0,0,.28);
-    }
-
-    .summary-box h2 {
-      margin: 0 0 8px;
-      font-size: 22px;
-    }
-
-    .summary-list {
-      display: grid;
-      gap: 8px;
-      margin: 14px 0;
-    }
-
-    .summary-item {
-      background: #F8FAFC;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 10px;
-      font-size: 13px;
-      line-height: 1.35;
-    }
-
-    .summary-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-
-    .modebar {
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:center;
-    }
-
-    .mode-toggle {
-      border:1px solid var(--line);
-      background:#F8FAFC;
-      color:#334155;
-      border-radius:999px;
-      padding:8px 12px;
-      font-size:12px;
-      font-weight:900;
-      cursor:pointer;
-    }
-
-    .mode-toggle.active {
-      background:var(--theme);
-      color:white;
-      border-color:var(--theme);
-    }
-
-    .problem-filters {
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:8px;
-    }
-
-    .problem-chip {
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:white;
-      padding:7px 10px;
-      font-size:11px;
-      font-weight:900;
-      cursor:pointer;
-      color:#334155;
-    }
-
-    .problem-chip.active {
-      background:#FEF2F2;
-      color:var(--danger);
-      border-color:#FECACA;
-    }
-
-    .problem-flag-row {
-      display:flex;
-      gap:6px;
-      flex-wrap:wrap;
-      margin-top:6px;
-    }
-
-    .problem-flag {
-      border-radius:999px;
-      padding:4px 7px;
-      font-size:10px;
-      font-weight:900;
-      background:#FEF2F2;
-      color:var(--danger);
-      border:1px solid #FECACA;
-    }
-
-    .fullmode .variant-extra {
-      display:grid !important;
-    }
-
-    .quickmode .variant-extra {
-      display:none;
-    }
-
     @media (max-width:850px) {
       .toolbar-grid {
         grid-template-columns:1fr 1fr;
@@ -766,23 +734,6 @@
         width:100%;
       }
 
-      .bulkbar { padding: 8px; }
-      .bulkbar-inner { grid-template-columns: 1fr; }
-      .summary-actions { grid-template-columns: 1fr; }
-
-      .toolbar,
-      .bulkbar,
-      .savebar {
-        position: static !important;
-        top: auto !important;
-        z-index: auto !important;
-      }
-
-      .bulkbar {
-        box-shadow: none;
-      }
-
-
       .group-head {
         grid-template-columns:58px 1fr auto;
         padding:10px;
@@ -846,40 +797,6 @@
   </section>
 
   <div id="adminApp" style="display:none;">
-    <section class="bulkbar">
-      <div class="bulkbar-inner">
-        <div class="modebar">
-          <button class="mode-toggle active" id="quickModeBtn" type="button">Daily Mode</button>
-          <button class="mode-toggle" id="fullModeBtn" type="button">Full Edit</button>
-        </div>
-        <button class="btn-soft" id="collapseAllBtn" type="button">Collapse All</button>
-        <div class="bulk-note" id="selectedCountText">0 selected</div>
-        <select id="bulkStockStatus">
-          <option value="">Set stock...</option>
-          <option value="Available">Available</option>
-          <option value="Low Stock">Low Stock</option>
-          <option value="Sold Out">Sold Out</option>
-          <option value="Coming Soon">Coming Soon</option>
-        </select>
-        <select id="bulkBadgeAction">
-          <option value="">Badge/action...</option>
-          <option value="active:true">Set Active</option>
-          <option value="active:false">Set Inactive</option>
-          <option value="featured:true">Featured On</option>
-          <option value="featured:false">Featured Off</option>
-          <option value="new:true">New On</option>
-          <option value="new:false">New Off</option>
-          <option value="hot:true">Hot On</option>
-          <option value="hot:false">Hot Off</option>
-          <option value="sale:true">Sale On</option>
-          <option value="sale:false">Sale Off</option>
-          <option value="limited:true">Limited On</option>
-          <option value="limited:false">Limited Off</option>
-        </select>
-        <button class="btn" id="applyBulkBtn" type="button">Apply to Selected</button>
-      </div>
-    </section>
-
     <section class="toolbar">
       <div class="wrap toolbar-grid">
         <input id="searchInput" type="search" placeholder="Search product, brand, flavor, category..." />
@@ -909,6 +826,7 @@
       <div class="status">
         <div id="statusText">Loading products...</div>
         <div class="status-actions">
+          <button class="btn" id="newProductBtn" type="button">New Product</button>
           <button class="btn-soft" id="logoutBtn" type="button">Logout</button>
           <button class="btn-danger" id="clearCacheBtn" type="button">Clear Public Cache</button>
         </div>
@@ -919,19 +837,9 @@
     </main>
   </div>
 
-  <div class="summary-overlay" id="saveSummaryModal">
-    <div class="summary-box">
-      <h2>Review Changes</h2>
-      <div class="small-note">Review the staged changes before writing them to Google Sheets.</div>
-      <div class="summary-list" id="summaryList"></div>
-      <div class="summary-actions">
-        <button class="btn-soft" type="button" onclick="closeSaveSummary()">Cancel</button>
-        <button class="btn-ok" type="button" onclick="confirmSaveAllChanges()">Confirm & Save</button>
-      </div>
-    </div>
-  </div>
-
+  <datalist id="categoryDatalist"></datalist>
   <div class="toast" id="toast"></div>
+  <div id="createProductModal" style="display:none;"></div>
 
   <script>
     const CATALOG_API_URL = 'https://script.google.com/macros/s/AKfycbwvM-VSrKnQhVrWdXolLX6EYQOF21uBuS4jqzbcr1mbfS6BtMEtWDS1FbBATdEehqzT/exec';
@@ -945,8 +853,6 @@
     let originalProducts = [];
     let categories = [];
     let dirtyProducts = new Map();
-    let selectedRows = new Set();
-    let activeProblemFilter = '';
     let saveInProgress = false;
 
     document.addEventListener('DOMContentLoaded', init);
@@ -973,28 +879,10 @@
         loadProducts({ forceRefresh: true });
       });
       document.getElementById('clearCacheBtn').addEventListener('click', clearPublicCache);
+      document.getElementById('newProductBtn').addEventListener('click', function() { openCreateProductModal(); });
       document.getElementById('logoutBtn').addEventListener('click', logoutAdmin);
-      document.getElementById('saveAllBtn').addEventListener('click', openSaveSummary);
+      document.getElementById('saveAllBtn').addEventListener('click', saveAllChanges);
       document.getElementById('discardChangesBtn').addEventListener('click', discardChanges);
-      document.getElementById('quickModeBtn').addEventListener('click', function(){ setEditMode('quick'); });
-      document.getElementById('fullModeBtn').addEventListener('click', function(){ setEditMode('full'); });
-
-      document.querySelectorAll('[data-problem]').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const value = btn.getAttribute('data-problem') || '';
-          activeProblemFilter = activeProblemFilter === value ? '' : value;
-
-          document.querySelectorAll('[data-problem]').forEach(chip => {
-            chip.classList.toggle('active', chip.getAttribute('data-problem') === activeProblemFilter);
-          });
-
-          renderProducts();
-        });
-      });
-      document.getElementById('collapseAllBtn').addEventListener('click', toggleAllGroupsCollapsed);
-      document.getElementById('applyBulkBtn').addEventListener('click', applyBulkAction);
-      document.getElementById('bulkStockStatus').addEventListener('change', updateBulkApplyState);
-      document.getElementById('bulkBadgeAction').addEventListener('change', updateBulkApplyState);
 
       window.addEventListener('beforeunload', function(event) {
         if (dirtyProducts.size > 0) {
@@ -1042,7 +930,6 @@
       document.getElementById('emptyState').style.display = 'none';
       document.getElementById('adminKeyInput').value = '';
       updateSaveBar();
-      updateSelectedCount();
 
       showLoginPanel();
       showToast('Logged out.');
@@ -1057,7 +944,6 @@
       hideLoginError();
       document.getElementById('loginPanel').style.display = 'none';
       document.getElementById('adminApp').style.display = 'block';
-      updateQuickMode();
     }
 
     function showLoginError(message) {
@@ -1199,7 +1085,6 @@
       originalProducts = deepClone(products);
       categories = response.categories || [];
       dirtyProducts.clear();
-      selectedRows.clear();
 
       populateCategories();
       renderProducts();
@@ -1224,6 +1109,16 @@
       });
 
       select.value = current;
+
+      const datalist = document.getElementById('categoryDatalist');
+      if (datalist) {
+        datalist.innerHTML = '';
+        categories.forEach(category => {
+          const opt = document.createElement('option');
+          opt.value = category;
+          datalist.appendChild(opt);
+        });
+      }
     }
 
     function renderProducts() {
@@ -1247,22 +1142,6 @@
         if (active === 'active' && !product.active) return false;
         if (active === 'inactive' && product.active) return false;
         if (search && !haystack.includes(search)) return false;
-
-        if (activeProblemFilter) {
-          const missingPrice = !Number(product.retailPrice || 0);
-          const missingImage = !String(product.imageUrl || '').trim();
-          const soldOut = String(product.stockStatus || '').toLowerCase().includes('sold');
-          const inactive = !product.active;
-          const featured = !!product.featured;
-          const unsaved = dirtyProducts.has(String(product.rowNumber));
-
-          if (activeProblemFilter === 'missing-price' && !missingPrice) return false;
-          if (activeProblemFilter === 'missing-image' && !missingImage) return false;
-          if (activeProblemFilter === 'sold-out' && !soldOut) return false;
-          if (activeProblemFilter === 'inactive' && !inactive) return false;
-          if (activeProblemFilter === 'featured' && !featured) return false;
-          if (activeProblemFilter === 'unsaved' && !unsaved) return false;
-        }
 
         return true;
       });
@@ -1320,26 +1199,33 @@
       });
     }
 
-    
-    function buildGroupProblemFlags(group) {
-      const variants = Array.isArray(group.variants) ? group.variants : [];
 
-      const missingPrice = variants.filter(v => !Number(v.retailPrice || 0)).length;
-      const missingImage = variants.filter(v => !String(v.imageUrl || '').trim()).length;
-      const inactive = variants.filter(v => !v.active).length;
+    function getVariantPrefillFromGroup(group) {
+      const first = group && group.variants && group.variants.length ? group.variants[0] : {};
 
-      const flags = [];
-
-      if (missingPrice) flags.push('<span class="problem-flag">' + missingPrice + ' missing price</span>');
-      if (missingImage) flags.push('<span class="problem-flag">' + missingImage + ' missing image</span>');
-      if (inactive) flags.push('<span class="problem-flag">' + inactive + ' inactive</span>');
-
-      if (!flags.length) return '';
-
-      return '<div class="problem-flag-row">' + flags.join('') + '</div>';
+      return {
+        category: group.category || first.category || '',
+        brand: group.brand || first.brand || '',
+        productName: group.productName || first.productName || '',
+        flavor: '',
+        description: first.description || group.description || '',
+        retailPrice: first.retailPrice || 0,
+        suggestedRetailPrice: first.suggestedRetailPrice || 0,
+        moq: first.moq || 1,
+        stockStatus: 'Available',
+        imageUrl: first.imageUrl || group.imageUrl || '',
+        sortOrder: first.sortOrder || 9999,
+        notes: '',
+        active: true,
+        featured: !!first.featured,
+        new: !!first.new,
+        hot: !!first.hot,
+        sale: !!first.sale,
+        limited: !!first.limited
+      };
     }
 
-function productGroupCard(group) {
+    function productGroupCard(group) {
       const section = document.createElement('article');
       const hasDirty = group.variants.some(v => dirtyProducts.has(String(v.rowNumber)));
       section.className = 'product-group' + (hasDirty ? ' dirty' : '');
@@ -1365,13 +1251,28 @@ function productGroupCard(group) {
               (soldCount ? '<span class="mini-badge warn">' + soldCount + ' sold out</span>' : '') +
               (dirtyCount ? '<span class="mini-badge warn">' + dirtyCount + ' unsaved</span>' : '') +
             '</div>' +
-            buildGroupProblemFlags(group) +
           '</div>' +
           '<button class="group-toggle" type="button">▾</button>' +
         '</div>' +
         '<div class="group-body"></div>';
 
       const body = section.querySelector('.group-body');
+
+      const addRow = document.createElement('div');
+      addRow.className = 'group-action-row';
+
+      const addBtn = document.createElement('button');
+      addBtn.className = 'btn-soft';
+      addBtn.type = 'button';
+      addBtn.textContent = '+ Add Variant';
+      addBtn.addEventListener('click', function(event) {
+        event.stopPropagation();
+        openCreateProductModal(getVariantPrefillFromGroup(group));
+      });
+
+      addRow.appendChild(addBtn);
+      body.appendChild(addRow);
+
       group.variants.forEach(variant => {
         body.appendChild(variantCard(variant));
       });
@@ -1397,13 +1298,10 @@ function productGroupCard(group) {
 
       card.innerHTML =
         '<div class="variant-head">' +
-          '<div class="variant-select-wrap">' +
-            '<input class="select-variant" type="checkbox" data-select-row="' + product.rowNumber + '" onclick="event.stopPropagation()" />' +
-            '<div>' +
+          '<div>' +
             '<div class="variant-title">' + escapeHtml(title) + '</div>' +
             '<div class="variant-meta">Row ' + product.rowNumber + ' · ' + escapeHtml(product.stockStatus || 'Available') + '</div>' +
             '<div class="dirty-pill">Unsaved changes</div>' +
-            '</div>' +
           '</div>' +
           '<div class="status-pill ' + (product.active ? '' : 'inactive') + '">' + (product.active ? 'Active' : 'Inactive') + '</div>' +
         '</div>' +
@@ -1428,6 +1326,7 @@ function productGroupCard(group) {
             fieldHtml('Suggested Price', 'suggestedRetailPrice', product.suggestedRetailPrice, 'number') +
             fieldHtml('MOQ', 'moq', product.moq || 1, 'number') +
             fieldHtml('Image URL', 'imageUrl', product.imageUrl, 'text', 'field-full') +
+            imagePreviewHtml(product.imageUrl, 'imagePreview-' + product.rowNumber) +
             textareaHtml('Description', 'description', product.description, 'field-full') +
             textareaHtml('Notes', 'notes', product.notes, 'field-full') +
           '</div>' +
@@ -1443,38 +1342,83 @@ function productGroupCard(group) {
 
           '<div class="actions">' +
             '<div class="small-note">Variant changes are staged locally. Use Save All Changes above.</div>' +
+            '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">' +
+            '<button class="btn-soft" type="button" onclick="openCreateProductModal(products.find(p => Number(p.rowNumber) === ' + product.rowNumber + '))">Create Similar</button>' +
             '<button class="btn-soft" type="button" onclick="discardProductChanges(' + product.rowNumber + ')">Discard This Variant</button>' +
+            '</div>' +
           '</div>' +
         '</div>';
 
       card.querySelectorAll('[data-field]').forEach(el => {
         el.addEventListener('input', function() {
+          if (el.getAttribute('data-field') === 'imageUrl') {
+            updateImagePreview('imagePreview-' + product.rowNumber, el.value);
+          }
           markProductDirty(product.rowNumber, card);
         });
         el.addEventListener('change', function() {
+          if (el.getAttribute('data-field') === 'imageUrl') {
+            updateImagePreview('imagePreview-' + product.rowNumber, el.value);
+          }
           markProductDirty(product.rowNumber, card);
         });
       });
-
-      const selector = card.querySelector('[data-select-row]');
-      if (selector) {
-        selector.checked = selectedRows.has(String(product.rowNumber));
-        selector.addEventListener('change', function() {
-          if (selector.checked) selectedRows.add(String(product.rowNumber));
-          else selectedRows.delete(String(product.rowNumber));
-          updateSelectedCount();
-        });
-      }
 
       return card;
     }
 
     function fieldHtml(label, key, value, type, extraClass) {
+      const listAttr = key === 'category' ? ' list="categoryDatalist"' : '';
+
       return '' +
         '<div class="field ' + (extraClass || '') + '">' +
           '<label>' + escapeHtml(label) + '</label>' +
-          '<input data-field="' + escapeAttr(key) + '" type="' + escapeAttr(type || 'text') + '" value="' + escapeAttr(value == null ? '' : value) + '" />' +
+          '<input data-field="' + escapeAttr(key) + '" type="' + escapeAttr(type || 'text') + '"' + listAttr + ' value="' + escapeAttr(value == null ? '' : value) + '" />' +
         '</div>';
+    }
+
+
+    function imagePreviewHtml(url, id) {
+      const safeUrl = String(url || '').trim();
+
+      return '' +
+        '<div class="image-preview-box">' +
+          '<img id="' + escapeAttr(id) + '" class="image-preview-img" src="' + escapeAttr(safeUrl) + '" alt="Image preview" style="' + (safeUrl ? 'display:block;' : '') + '" />' +
+          '<div class="image-preview-text">' + (safeUrl ? 'Image preview. If this does not display, check the URL or sharing permissions.' : 'Paste an image URL to preview it here.') + '</div>' +
+        '</div>';
+    }
+
+    function createImagePreviewHtml(url, id) {
+      return imagePreviewHtml(url, id);
+    }
+
+    function updateImagePreview(previewId, url) {
+      const img = document.getElementById(previewId);
+      if (!img) return;
+
+      const text = img.nextElementSibling;
+      const cleanUrl = String(url || '').trim();
+
+      if (!cleanUrl) {
+        img.style.display = 'none';
+        img.removeAttribute('src');
+        if (text) text.textContent = 'Paste an image URL to preview it here.';
+        return;
+      }
+
+      img.onerror = function() {
+        img.style.display = 'none';
+        if (text) text.textContent = 'Image preview unavailable. Check the URL or sharing permissions.';
+      };
+
+      img.onload = function() {
+        img.style.display = 'block';
+        if (text) text.textContent = 'Image preview loaded.';
+      };
+
+      img.style.display = 'block';
+      img.src = cleanUrl;
+      if (text) text.textContent = 'Loading image preview...';
     }
 
     function textareaHtml(label, key, value, extraClass) {
@@ -1539,140 +1483,6 @@ function productGroupCard(group) {
       });
 
       return payload;
-    }
-
-
-    function setEditMode(mode) {
-      const isFull = mode === 'full';
-
-      document.body.classList.toggle('fullmode', isFull);
-      document.body.classList.toggle('quickmode', !isFull);
-
-      document.getElementById('quickModeBtn').classList.toggle('active', !isFull);
-      document.getElementById('fullModeBtn').classList.toggle('active', isFull);
-    }
-
-    function updateQuickMode() {
-      setEditMode('quick');
-    }
-
-    function toggleAllGroupsCollapsed() {
-      const groups = document.querySelectorAll('.product-group');
-      const shouldCollapse = Array.from(groups).some(group => !group.classList.contains('collapsed'));
-
-      groups.forEach(group => {
-        group.classList.toggle('collapsed', shouldCollapse);
-        const btn = group.querySelector('.group-toggle');
-        if (btn) btn.textContent = shouldCollapse ? '▸' : '▾';
-      });
-
-      document.getElementById('collapseAllBtn').textContent = shouldCollapse ? 'Expand All' : 'Collapse All';
-    }
-
-    function updateSelectedCount() {
-      const el = document.getElementById('selectedCountText');
-      if (el) el.textContent = selectedRows.size + ' selected';
-      updateBulkApplyState();
-    }
-
-    function updateBulkApplyState() {
-      const btn = document.getElementById('applyBulkBtn');
-      if (!btn) return;
-      const hasAction = !!(document.getElementById('bulkStockStatus').value || document.getElementById('bulkBadgeAction').value);
-      btn.disabled = !(selectedRows.size && hasAction);
-    }
-
-    function applyBulkAction() {
-      if (!selectedRows.size) {
-        showToast('Select variants first.');
-        return;
-      }
-
-      const stockValue = document.getElementById('bulkStockStatus').value;
-      const badgeValue = document.getElementById('bulkBadgeAction').value;
-
-      if (!stockValue && !badgeValue) {
-        showToast('Choose a bulk action first.');
-        return;
-      }
-
-      selectedRows.forEach(rowKey => {
-        const product = products.find(p => String(p.rowNumber) === String(rowKey));
-        if (!product) return;
-
-        if (stockValue) product.stockStatus = stockValue;
-
-        if (badgeValue) {
-          const parts = badgeValue.split(':');
-          product[parts[0]] = parts[1] === 'true';
-        }
-
-        dirtyProducts.set(String(product.rowNumber), Object.assign({}, product));
-      });
-
-      document.getElementById('bulkStockStatus').value = '';
-      document.getElementById('bulkBadgeAction').value = '';
-
-      renderProducts();
-      updateSelectedCount();
-      updateSaveBar();
-      showToast('Bulk action staged for ' + selectedRows.size + ' selected variant' + (selectedRows.size === 1 ? '' : 's') + '.');
-    }
-
-    function openSaveSummary() {
-      if (saveInProgress) return;
-      if (!dirtyProducts.size) {
-        showToast('No changes to save.');
-        return;
-      }
-
-      const summary = buildChangeSummary(Array.from(dirtyProducts.values()));
-      document.getElementById('summaryList').innerHTML = summary.map(item =>
-        '<div class="summary-item">' + escapeHtml(item) + '</div>'
-      ).join('');
-
-      document.getElementById('saveSummaryModal').style.display = 'flex';
-    }
-
-    function closeSaveSummary() {
-      document.getElementById('saveSummaryModal').style.display = 'none';
-    }
-
-    function buildChangeSummary(changes) {
-      const counts = { price:0, stock:0, active:0, badges:0, sort:0, other:0 };
-
-      changes.forEach(updated => {
-        const original = originalProducts.find(p => Number(p.rowNumber) === Number(updated.rowNumber)) || {};
-
-        if (Number(original.retailPrice || 0) !== Number(updated.retailPrice || 0)) counts.price++;
-        if (String(original.stockStatus || '') !== String(updated.stockStatus || '')) counts.stock++;
-        if (!!original.active !== !!updated.active) counts.active++;
-        if (Number(original.sortOrder || 0) !== Number(updated.sortOrder || 0)) counts.sort++;
-
-        ['featured','new','hot','sale','limited'].forEach(key => {
-          if (!!original[key] !== !!updated[key]) counts.badges++;
-        });
-
-        ['category','brand','productName','flavor','description','imageUrl','notes','moq','suggestedRetailPrice'].forEach(key => {
-          if (String(original[key] || '') !== String(updated[key] || '')) counts.other++;
-        });
-      });
-
-      const lines = [];
-      lines.push(changes.length + ' product/variant row' + (changes.length === 1 ? '' : 's') + ' will be updated.');
-      if (counts.price) lines.push(counts.price + ' price change' + (counts.price === 1 ? '' : 's'));
-      if (counts.stock) lines.push(counts.stock + ' stock status change' + (counts.stock === 1 ? '' : 's'));
-      if (counts.active) lines.push(counts.active + ' active/inactive change' + (counts.active === 1 ? '' : 's'));
-      if (counts.badges) lines.push(counts.badges + ' badge change' + (counts.badges === 1 ? '' : 's'));
-      if (counts.sort) lines.push(counts.sort + ' sort order change' + (counts.sort === 1 ? '' : 's'));
-      if (counts.other) lines.push(counts.other + ' other field change' + (counts.other === 1 ? '' : 's'));
-
-      return lines;
-    }
-
-    async function confirmSaveAllChanges() {
-      closeSaveSummary();
-      await saveAllChanges();
     }
 
     async function saveAllChanges() {
@@ -1755,6 +1565,166 @@ function productGroupCard(group) {
       bar.style.display = count ? 'block' : 'none';
       text.textContent = count + ' unsaved product change' + (count === 1 ? '' : 's');
     }
+
+
+    function openCreateProductModal(prefill) {
+      prefill = prefill || {};
+
+      const modal = document.getElementById('createProductModal');
+      modal.style.display = 'block';
+
+      modal.innerHTML =
+        '<div class="modal-overlay" onclick="closeCreateProductModalOnBackdrop(event)">' +
+          '<div class="modal-box">' +
+            '<div class="modal-head">' +
+              '<div>' +
+                '<h2>Create New Product / Variant</h2>' +
+                '<div class="modal-sub">Add a new row to the Products sheet. It will appear in the public catalog if Active is enabled.</div>' +
+              '</div>' +
+              '<button class="xbtn" type="button" onclick="closeCreateProductModal()">×</button>' +
+            '</div>' +
+
+            '<div class="create-grid">' +
+              createFieldHtml('Category', 'category', prefill.category || '', 'text') +
+              createFieldHtml('Brand', 'brand', prefill.brand || '', 'text') +
+              createFieldHtml('Product Name', 'productName', prefill.productName || '', 'text') +
+              createFieldHtml('Flavor / Variant', 'flavor', prefill.flavor || '', 'text') +
+              createFieldHtml('Retail Price', 'retailPrice', prefill.retailPrice || 0, 'number') +
+              createFieldHtml('Suggested Price', 'suggestedRetailPrice', prefill.suggestedRetailPrice || 0, 'number') +
+              createFieldHtml('MOQ', 'moq', prefill.moq || 1, 'number') +
+              createFieldHtml('Sort Order', 'sortOrder', prefill.sortOrder || 9999, 'number') +
+              createSelectHtml('Stock Status', 'stockStatus', prefill.stockStatus || 'Available', ['Available','Low Stock','Sold Out','Coming Soon']) +
+              createFieldHtml('Image URL', 'imageUrl', prefill.imageUrl || '', 'text', 'field-full') +
+              createImagePreviewHtml(prefill.imageUrl || '', 'createImagePreview') +
+              createTextareaHtml('Description', 'description', prefill.description || '', 'field-full') +
+              createTextareaHtml('Notes', 'notes', prefill.notes || '', 'field-full') +
+            '</div>' +
+
+            '<div class="toggles" style="margin-top:12px;">' +
+              createToggleHtml('Active', 'active', prefill.active !== false) +
+              createToggleHtml('Featured', 'featured', !!prefill.featured) +
+              createToggleHtml('New', 'new', !!prefill.new) +
+              createToggleHtml('Hot', 'hot', !!prefill.hot) +
+              createToggleHtml('Sale', 'sale', !!prefill.sale) +
+              createToggleHtml('Limited', 'limited', !!prefill.limited) +
+            '</div>' +
+
+            '<div class="create-actions">' +
+              '<button class="btn-soft" type="button" onclick="closeCreateProductModal()">Cancel</button>' +
+              '<button class="btn-ok" id="createProductSaveBtn" type="button" onclick="createNewProduct()">Create Product</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      const imageInput = modal.querySelector('[data-create-field="imageUrl"]');
+      if (imageInput) {
+        imageInput.addEventListener('input', function() {
+          updateImagePreview('createImagePreview', imageInput.value);
+        });
+        imageInput.addEventListener('change', function() {
+          updateImagePreview('createImagePreview', imageInput.value);
+        });
+      }
+    }
+
+    function closeCreateProductModalOnBackdrop(event) {
+      if (event.target.classList.contains('modal-overlay')) closeCreateProductModal();
+    }
+
+    function closeCreateProductModal() {
+      const modal = document.getElementById('createProductModal');
+      modal.style.display = 'none';
+      modal.innerHTML = '';
+    }
+
+    function createFieldHtml(label, key, value, type, extraClass) {
+      const listAttr = key === 'category' ? ' list="categoryDatalist"' : '';
+
+      return '' +
+        '<div class="field ' + (extraClass || '') + '">' +
+          '<label>' + escapeHtml(label) + '</label>' +
+          '<input data-create-field="' + escapeAttr(key) + '" type="' + escapeAttr(type || 'text') + '"' + listAttr + ' value="' + escapeAttr(value == null ? '' : value) + '" />' +
+        '</div>';
+    }
+
+    function createTextareaHtml(label, key, value, extraClass) {
+      return '' +
+        '<div class="field ' + (extraClass || '') + '">' +
+          '<label>' + escapeHtml(label) + '</label>' +
+          '<textarea data-create-field="' + escapeAttr(key) + '" rows="3">' + escapeHtml(value || '') + '</textarea>' +
+        '</div>';
+    }
+
+    function createSelectHtml(label, key, value, options) {
+      return '' +
+        '<div class="field">' +
+          '<label>' + escapeHtml(label) + '</label>' +
+          '<select data-create-field="' + escapeAttr(key) + '">' +
+            options.map(option => '<option value="' + escapeAttr(option) + '"' + (option === value ? ' selected' : '') + '>' + escapeHtml(option) + '</option>').join('') +
+          '</select>' +
+        '</div>';
+    }
+
+    function createToggleHtml(label, key, checked) {
+      return '' +
+        '<label class="toggle">' +
+          '<input data-create-field="' + escapeAttr(key) + '" type="checkbox" ' + (checked ? 'checked' : '') + ' />' +
+          escapeHtml(label) +
+        '</label>';
+    }
+
+    async function createNewProduct() {
+      const modal = document.getElementById('createProductModal');
+      const payload = {};
+
+      modal.querySelectorAll('[data-create-field]').forEach(el => {
+        const key = el.getAttribute('data-create-field');
+
+        if (el.type === 'checkbox') {
+          payload[key] = el.checked;
+        } else if (el.type === 'number') {
+          payload[key] = Number(el.value || 0);
+        } else {
+          payload[key] = el.value.trim();
+        }
+      });
+
+      if (!payload.productName) {
+        showToast('Product name is required.');
+        return;
+      }
+
+      if (!payload.category) {
+        showToast('Category is required.');
+        return;
+      }
+
+      const btn = document.getElementById('createProductSaveBtn');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Creating...';
+      }
+
+      const response = await jsonp('adminCreateProduct', {
+        payload: JSON.stringify(payload)
+      });
+
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Create Product';
+      }
+
+      if (!response || !response.ok) {
+        showToast('Create failed: ' + (response && response.error ? response.error : 'Unknown error.'));
+        return;
+      }
+
+      closeCreateProductModal();
+      clearAdminBrowserCache();
+      showToast('Product created. Reloading admin catalog...');
+      await loadProducts({ forceRefresh: true });
+    }
+
 
     async function clearPublicCache() {
       const response = await jsonp('adminClearCatalogCache');
